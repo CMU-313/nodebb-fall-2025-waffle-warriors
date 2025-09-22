@@ -1,9 +1,9 @@
 <!-- IMPORT partials/breadcrumbs.tpl -->
 
 <div data-widget-area="header">
-	{{{each widgets.header}}}
+	{{{ each widgets.header }}}
 	{{widgets.header.html}}
-	{{{end}}}
+	{{{ end }}}
 </div>
 
 <div class="row">
@@ -20,44 +20,30 @@
 		{{{ if polls.length }}}
 		<div class="polls-list">
 			{{{ each polls }}}
-			<div class="card mb-3" style="position: relative; z-index: auto; clear: both;">
+			<div class="card mb-3">
 				<div class="card-body">
 					<div class="d-flex justify-content-between align-items-start">
 						<div class="flex-grow-1">
-							<h5 class="card-title">
-								<a href="{config.relative_path}/polls/{./pollId}" class="text-decoration-none">
-									{./title}
-								</a>
+							<h5 class="card-title mb-1">
+								<a href="{config.relative_path}/polls/{./pollId}" class="text-decoration-none">{./title}</a>
 							</h5>
+
 							{{{ if ./description }}}
-							<p class="card-text text-muted">{./description}</p>
+							<p class="card-text text-muted mb-2">{./description}</p>
 							{{{ end }}}
-							<div class="d-flex align-items-center text-muted small">
-								<span class="me-3">
-									<i class="fa fa-user"></i> {./user.username}
-								</span>
-								<span class="me-3">
-									<i class="fa fa-clock"></i> <span class="timeago" title="{./timestampISO}">{./timestamp}</span>
-								</span>
-								<span class="me-3">
-									<i class="fa fa-chart-bar"></i> {./totalVotes} votes
-								</span>
-								<span>
-									<i class="fa fa-list"></i> {./options.length} options
-								</span>
+
+							<div class="d-flex flex-wrap align-items-center gap-3 text-muted small">
+								<span><i class="fa fa-user"></i> {./user.username}</span>
+								<span><i class="fa fa-clock"></i> <span class="timeago" title="{./timestampISO}">{./timestamp}</span></span>
+								<span><i class="fa fa-chart-bar"></i> {./totalVotes} votes</span>
+								<span><i class="fa fa-list"></i> {./options.length} options</span>
 							</div>
 						</div>
+
 						<div class="text-end">
 							{{{ if ./status }}}
-							{{{ if (./status === 'active') }}}
-							<span class="badge bg-success">
-								{./status}
-							</span>
-							{{{ else }}}
-							<span class="badge bg-secondary">
-								{./status}
-							</span>
-							{{{ end }}}
+							<!-- keep it simple: always show a neutral badge -->
+							<span class="badge bg-secondary">{./status}</span>
 							{{{ end }}}
 						</div>
 					</div>
@@ -76,36 +62,24 @@
 
 	<div class="col-lg-3">
 		<div data-widget-area="sidebar">
-			{{{each widgets.sidebar}}}
+			{{{ each widgets.sidebar }}}
 			{{widgets.sidebar.html}}
-			{{{end}}}
+			{{{ end }}}
 		</div>
 	</div>
 </div>
 
 <div data-widget-area="footer">
-	{{{each widgets.footer}}}
+	{{{ each widgets.footer }}}
 	{{widgets.footer.html}}
-	{{{end}}}
+	{{{ end }}}
 </div>
 
 <style>
-.polls-list {
-	display: block;
-	width: 100%;
-}
-
-.polls-list .card {
-	display: block !important;
-	position: static !important;
-	float: none !important;
-	width: 100% !important;
-	margin-bottom: 1rem !important;
-	clear: both !important;
-}
-
-.polls-list .card-body {
-	display: block;
-	position: relative;
-}
+/* Force a simple vertical list and neutralize any theme "stacked card" visuals */
+.polls-list { display: flex; flex-direction: column; gap: 1rem; }
+.polls-list .card { position: static !important; float: none !important; width: 100% !important; margin: 0 !important; transform: none !important; }
+.polls-list .card::before,
+.polls-list .card::after { content: none !important; }
+.polls-list .card-body { position: relative; }
 </style>
