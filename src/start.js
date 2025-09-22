@@ -2,7 +2,6 @@
 
 const nconf = require('nconf');
 const winston = require('winston');
-const digestScheduler = require('./digest/scheduler');
 
 const start = module.exports;
 
@@ -45,13 +44,6 @@ start.start = async function () {
 		}
 
 		await webserver.listen();
-
-
-    // Start the Daily Digest scheduler once the server is listening.
-    // Run only in the primary process and when background jobs are enabled.
-    if (nconf.get('isPrimary') && nconf.get('runJobs')) {
-        await digestScheduler.init();
-    }
 
 		if (process.send) {
 			process.send({
