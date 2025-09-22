@@ -127,7 +127,9 @@ function modifyTopic(topic, fields) {
 	if (fields.includes('teaserPid') || !fields.length) {
 		topic.teaserPid = topic.teaserPid || null;
 	}
-
+	if (topic.hasOwnProperty('allow_anonymous')) {
+		topic.allow_anonymous = topic.allow_anonymous === 'true';
+	}
 	if (fields.includes('tags') || !fields.length) {
 		const tags = String(topic.tags || '');
 		topic.tags = tags.split(',').filter(Boolean).map((tag) => {
