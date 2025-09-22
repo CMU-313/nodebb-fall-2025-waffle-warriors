@@ -30,6 +30,14 @@ module.exports = function (Posts) {
 		const pid = data.pid || await db.incrObjectField('global', 'nextPid');
 		let postData = { pid, uid, tid, content, sourceContent, timestamp };
 
+		postData.is_anonymous = !!data.is_anonymous;
+		const topicDataAnon = await topics.getTopicFields(tid, ['allow_anonymous']);
+		topicDataAnon.allow_anonymous = topicDataAnon.allow_anonymous === 'true';
+		if (!topicDataAnon.allow_anonymous) {
+			postData.is_anonymous = false; // prevent anonymous posting
+		}
+		console.log('Creating post:', { tid, pid: postData.pid, is_anonymous: postData.is_anonymous, topic_allows: topicDataAnon.allow_anonymous });
+
 		if (data.toPid) {
 			postData.toPid = data.toPid;
 		}
@@ -113,3 +121,5 @@ module.exports = function (Posts) {
 		}
 	}
 };
+
+
