@@ -13,15 +13,10 @@
 				<h1 class="h4 mb-0">{poll.title}</h1>
 				<div>
 					{{{ if poll.status }}}
-					{{{ if (poll.status === 'active') }}}
 					<span class="badge bg-success me-2">
 						{poll.status}
 					</span>
-					{{{ else }}}
-					<span class="badge bg-secondary me-2">
-						{poll.status}
-					</span>
-					{{{ end }}}
+
 					{{{ end }}}
 					{{{ if poll.canEdit }}}
 					<a href="{config.relative_path}/polls/{poll.pollId}/edit" class="btn btn-sm btn-outline-secondary">
@@ -128,15 +123,12 @@
 				</div>
 				<div class="mb-3">
 					<strong>Status:</strong><br>
-					{{{ if (poll.status === 'active') }}}
-					<span class="badge bg-success">
-						{poll.status}
-					</span>
-					{{{ else }}}
-					<span class="badge bg-secondary">
-						{poll.status}
-					</span>
-					{{{ end }}}
+					
+					<span class="badge bg-success">active</span>
+		
+		
+
+
 				</div>
 			</div>
 		</div>
