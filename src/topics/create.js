@@ -37,7 +37,12 @@ module.exports = function (Topics) {
 			viewcount: 0,
 			isPrivate: data.isPrivate ? 1 : 0,
 		};
-
+		
+		
+		//console.log('--- SERVER LOG: Topic creation data received: ---', topicData); 
+		
+		
+		
 		if (Array.isArray(data.tags) && data.tags.length) {
 			topicData.tags = data.tags.join(',');
 		}
