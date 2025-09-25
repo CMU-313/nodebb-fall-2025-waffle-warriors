@@ -1,0 +1,11 @@
+{
+  "id": "nodebb-plugin-anonymous-button",
+  "name": "Anonymous Button",
+  "description": "Adds a button to toggle anonymous posts",
+  "library": "./library.js",
+  "scripts": ["static/lib/main.js"],
+  "hooks": [
+    { "hook": "filter:composer.formatting", "method": "addComposerButton" },
+    { "hook": "action:post.save", "method": "addAnonymousFlag" }
+  ]
+}
