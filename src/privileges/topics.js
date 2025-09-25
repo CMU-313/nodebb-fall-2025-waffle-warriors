@@ -23,7 +23,7 @@ privsTopics.get = async function (tid, uid) {
 		'posts:upvote', 'posts:downvote',
 		'posts:delete', 'posts:view_deleted', 'read', 'purge',
 	];
-	const topicData = await topics.getTopicFields(tid, ['cid', 'uid', 'locked', 'deleted', 'scheduled']);
+	const topicData = await topics.getTopicFields(tid, ['cid', 'uid', 'locked', 'deleted', 'scheduled', 'isPrivate']);
 	const [userPrivileges, isAdministrator, isModerator, disabled, topicTools] = await Promise.all([
 		helpers.isAllowedTo(privs, uid, topicData.cid),
 		user.isAdministrator(uid),
@@ -65,6 +65,8 @@ privsTopics.get = async function (tid, uid) {
 		view_scheduled: privData['topics:schedule'] || isAdministrator,
 		isAdminOrMod: isAdminOrMod,
 		disabled: disabled,
+		isPrivate: topicData.isPrivate,
+		canViewPrivate: await privsTopics.canViewPrivate(topicData, uid),
 		tid: tid,
 		uid: uid,
 	});
@@ -80,7 +82,7 @@ privsTopics.filterTids = async function (privilege, tids, uid) {
 		return [];
 	}
 
-	const topicsData = await topics.getTopicsFields(tids, ['tid', 'cid', 'deleted', 'scheduled']);
+	const topicsData = await topics.getTopicsFields(tids, ['tid', 'cid', 'deleted', 'scheduled', 'isPrivate']);
 	const cids = _.uniq(topicsData.map(topic => topic.cid));
 	const results = await privsCategories.getBase(privilege, cids, uid);
 
@@ -93,15 +95,23 @@ privsTopics.filterTids = async function (privilege, tids, uid) {
 	const canViewDeleted = _.zipObject(cids, results.view_deleted);
 	const canViewScheduled = _.zipObject(cids, results.view_scheduled);
 
-	tids = topicsData.filter(t => (
-		cidsSet.has(t.cid) &&
-		(results.isAdmin || privsTopics.canViewDeletedScheduled(t, {}, canViewDeleted[t.cid], canViewScheduled[t.cid]))
-	)).map(t => t.tid);
+	// Filter topics by both standard permissions and private access
+	const filteredTopics = [];
+	for (const topic of topicsData) {
+		if (cidsSet.has(topic.cid) &&
+			(results.isAdmin || privsTopics.canViewDeletedScheduled(topic, {}, canViewDeleted[topic.cid], canViewScheduled[topic.cid]))) {
+			
+			// Check private topic access
+			if (await privsTopics.canViewPrivate(topic, uid)) {
+				filteredTopics.push(topic.tid);
+			}
+		}
+	}
 
 	const data = await plugins.hooks.fire('filter:privileges.topics.filter', {
 		privilege: privilege,
 		uid: uid,
-		tids: tids,
+		tids: filteredTopics,
 	});
 	return data ? data.tids : [];
 };
@@ -205,4 +215,22 @@ privsTopics.canViewDeletedScheduled = function (topic, privileges = {}, viewDele
 	}
 
 	return true;
+};
+
+privsTopics.canViewPrivate = async function (topic, uid) {
+	if (!topic || !topic.isPrivate) {
+		return true; // Public topics can be viewed by anyone with basic privileges
+	}
+
+	// Private topics can only be viewed by:
+	// 1. Topic owner (student who created it)
+	// 2. Administrators (instructors)
+	// 3. Moderators of the category (instructors)
+	const [isOwner, isAdmin, isModerator] = await Promise.all([
+		topics.isOwner(topic.tid, uid),
+		user.isAdministrator(uid),
+		user.isModerator(uid, topic.cid),
+	]);
+
+	return isOwner || isAdmin || isModerator;
 };

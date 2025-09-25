@@ -52,6 +52,11 @@ topicsAPI.get = async function (caller, data) {
 		return null;
 	}
 
+	// Check if user can view private topics
+	if (!(await privileges.topics.canViewPrivate(topic, caller.uid))) {
+		return null;
+	}
+
 	return topic;
 };
 
