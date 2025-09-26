@@ -61,7 +61,6 @@
 		</a>
 	</li>
 
-	<!-- Admin-only: Mark as Answered -->
 	<li>
 		<a
 			component="topic/mark-answered"
