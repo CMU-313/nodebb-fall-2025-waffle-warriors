@@ -2,9 +2,6 @@
 
 const db = require('../database');
 const user = require('../user');
-const privileges = require('../privileges');
-const plugins = require('../plugins');
-const utils = require('../utils');
 
 const Polls = module.exports;
 
@@ -21,7 +18,7 @@ Polls.create = async function (data) {
 		endTime: data.endTime || 0,
 		multipleChoice: data.multipleChoice || false,
 		anonymous: data.anonymous || false,
-		status: 'active'
+		status: 'active',
 	};
 	
 	await db.setObject(`poll:${pollId}`, pollData);
@@ -34,7 +31,7 @@ Polls.create = async function (data) {
 			const optionData = {
 				optionId: i,
 				text: data.options[i],
-				votes: 0
+				votes: 0,
 			};
 			await db.setObject(`poll:${pollId}:option:${i}`, optionData);
 			await db.listAppend(`poll:${pollId}:options`, i);

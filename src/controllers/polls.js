@@ -15,7 +15,7 @@ pollsController.list = async function (req, res) {
 
 	const [pollsData, pollCount] = await Promise.all([
 		polls.getPolls(start, stop),
-		polls.getCount ? polls.getCount() : 0
+		polls.getCount ? polls.getCount() : 0,
 	]);
 
 	const pageCount = Math.ceil(pollCount / itemsPerPage);
@@ -23,7 +23,7 @@ pollsController.list = async function (req, res) {
 	res.render('polls/list', {
 		polls: pollsData,
 		pagination: pagination.create(page, pageCount, req.query),
-		title: 'Polls'
+		title: 'Polls',
 	});
 };
 
@@ -33,7 +33,7 @@ pollsController.get = async function (req, res, next) {
 	try {
 		const [pollData, hasVoted] = await Promise.all([
 			polls.get(pollId),
-			req.uid ? polls.hasVoted(pollId, req.uid) : false
+			req.uid ? polls.hasVoted(pollId, req.uid) : false,
 		]);
 
 		if (!pollData) {
@@ -41,7 +41,7 @@ pollsController.get = async function (req, res, next) {
 		}
 
 		// Calculate percentages
-		pollData.options.forEach(option => {
+		pollData.options.forEach((option) => {
 			option.percentage = pollData.totalVotes > 0 ? 
 				Math.round((option.votes / pollData.totalVotes) * 100) : 0;
 		});
@@ -52,7 +52,7 @@ pollsController.get = async function (req, res, next) {
 
 		res.render('polls/poll', {
 			poll: pollData,
-			title: pollData.title
+			title: pollData.title,
 		});
 	} catch (err) {
 		next(err);
@@ -65,7 +65,7 @@ pollsController.create = async function (req, res) {
 	}
 
 	res.render('polls/create', {
-		title: 'Create Poll'
+		title: 'Create Poll',
 	});
 };
 
@@ -87,7 +87,7 @@ pollsController.edit = async function (req, res, next) {
 
 		res.render('polls/edit', {
 			poll: pollData,
-			title: 'Edit Poll'
+			title: 'Edit Poll',
 		});
 	} catch (err) {
 		next(err);
