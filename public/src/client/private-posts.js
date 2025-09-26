@@ -1,104 +1,62 @@
 'use strict';
 
 $(document).ready(function() {
-    console.log('🔧 Private posts script loaded');
-    
-    // Initialize private posts functionality
     initPrivatePosts();
 });
 
 function initPrivatePosts() {
-    console.log('🔧 Initializing private posts functionality');
+    // Clean up any existing indicators when navigating
+    $(window).on('action:ajaxify.start', function() {
+        $('.private-post-banner, .private-post-badge').remove();
+        $('.private-topic, .private-topic-listing').removeClass('private-topic private-topic-listing');
+    });
     
     // Hook into ajaxify events for SPA navigation
     $(window).on('action:ajaxify.end', function(ev, data) {
-        console.log('🔄 Ajaxify end event:', data);
-        setTimeout(addPrivatePostCheckbox, 300);
-        setTimeout(addPrivatePostIndicators, 200);
+        setTimeout(addPrivatePostCheckbox, 500);
+        setTimeout(addPrivatePostIndicators, 800);
     });
     
     // Hook into composer events
     $(window).on('action:composer.loaded', function(ev, data) {
-        console.log('📝 Composer loaded event:', data);
-        setTimeout(addPrivatePostCheckbox, 200);
+        setTimeout(addPrivatePostCheckbox, 300);
     });
     
-    // Also trigger immediately
-    setTimeout(addPrivatePostCheckbox, 1000);
-    setTimeout(addPrivatePostIndicators, 500);
-    
-    console.log('✅ Private posts initialization complete');
+    // Initialize with delay
+    setTimeout(addPrivatePostCheckbox, 1500);
+    setTimeout(addPrivatePostIndicators, 2000);
 }
 
 function addPrivatePostCheckbox() {
-    console.log('=== PRIVATE POST CHECKBOX ===');
-    
     // Check conditions
     const params = new URLSearchParams(window.location.search);
     const hasComposer = $('.composer').length > 0 || $('[component="composer"]').length > 0;
     const isNewTopic = params.has('cid') && !params.has('tid') && !params.has('pid');
     const isCategoryPage = window.location.pathname.includes('/category/');
     
-    console.log('hasComposer:', hasComposer);
-    console.log('isNewTopic:', isNewTopic);
-    console.log('isCategoryPage:', isCategoryPage);
-    console.log('URL:', window.location.href);
-    
     // Skip if checkbox already exists
     if ($('.private-post-option').length > 0) {
-        console.log('❌ Checkbox already exists');
         return;
     }
     
     // Only proceed if we have a composer and are creating a new topic
     if (hasComposer && (isNewTopic || isCategoryPage)) {
-        console.log('Conditions met, looking for insertion point...');
-        
         let insertionPoint = null;
-        let insertionMethod = '';
         
         // Try multiple insertion strategies
         const strategies = [
-            {
-                name: 'After title container',
-                selector: () => $('.composer .title-container, .composer .composer-title').last(),
-                method: 'after'
-            },
-            {
-                name: 'After title input group',
-                selector: () => $('[component="composer/title"]').closest('.form-group, .mb-3, .row, div').last(),
-                method: 'after'
-            },
-            {
-                name: 'After first input group',
-                selector: () => $('.composer input').first().closest('.form-group, .mb-3, .row, div'),
-                method: 'after'
-            },
-            {
-                name: 'Before submit button (using before)',
-                selector: () => $('.composer .composer-submit'),
-                method: 'before'
-            },
-            {
-                name: 'Before submit button (using closest)',
-                selector: () => $('.composer .composer-submit').closest('.form-group, .btn-toolbar, .composer-submit-container, div'),
-                method: 'before'
-            },
-            {
-                name: 'In composer body',
-                selector: () => $('.composer .composer-body, .composer .write-container').first(),
-                method: 'prepend'
-            }
+            () => $('.composer .title-container, .composer .composer-title').last(),
+            () => $('[component="composer/title"]').closest('.form-group, .mb-3, .row, div').last(),
+            () => $('.composer input').first().closest('.form-group, .mb-3, .row, div'),
+            () => $('.composer .composer-submit').closest('.form-group, .btn-toolbar, .composer-submit-container, div'),
+            () => $('.composer .composer-body, .composer .write-container').first()
         ];
         
         // Try each strategy until we find a good insertion point
         for (const strategy of strategies) {
-            const element = strategy.selector();
+            const element = strategy();
             if (element && element.length > 0) {
                 insertionPoint = element;
-                insertionMethod = strategy.name;
-                console.log('Insertion method:', insertionMethod);
-                console.log('Insertion point:', insertionPoint);
                 break;
             }
         }
@@ -107,7 +65,7 @@ function addPrivatePostCheckbox() {
             const checkboxHtml = `
                 <div class="form-group mb-3 private-post-option">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="privatePostCheckbox" name="isPrivate">
+                        <input class="form-check-input" type="checkbox" id="privatePostCheckbox" name="isPrivate" value="1">
                         <label class="form-check-label" for="privatePostCheckbox">
                             <i class="fa fa-lock text-warning me-1"></i>
                             <span class="fw-semibold">Make this post visible only to instructors</span>
@@ -117,134 +75,273 @@ function addPrivatePostCheckbox() {
                 </div>
             `;
             
-            // Apply the appropriate insertion method
-            if (insertionMethod.includes('before')) {
-                insertionPoint.before(checkboxHtml);
-            } else if (insertionMethod.includes('prepend')) {
-                insertionPoint.prepend(checkboxHtml);
-            } else {
-                insertionPoint.after(checkboxHtml);
-            }
-            
-            console.log('✅ Checkbox added with method:', insertionMethod);
+            insertionPoint.after(checkboxHtml);
             
             // Scroll to make the checkbox visible
             setTimeout(() => {
                 const checkbox = $('.private-post-option');
                 if (checkbox.length > 0) {
                     checkbox[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    console.log('📍 Scrolled to checkbox');
                 }
             }, 100);
             
             // Hook into form submission
             setupFormSubmissionHandler();
-            
-        } else {
-            console.log('❌ No suitable insertion point found');
         }
-    } else {
-        console.log('❌ Conditions not met');
     }
 }
 
 function setupFormSubmissionHandler() {
-    const composerForm = $('.composer').find('form');
-    if (composerForm.length) {
-        // Remove any existing handlers to avoid duplicates
-        composerForm.off('submit.privatePost');
-        
-        composerForm.on('submit.privatePost', function() {
-            console.log('🚀 Form submitted');
-            const checkbox = $('#privatePostCheckbox');
-            if (checkbox.length && checkbox.is(':checked')) {
-                console.log('🔒 Private post checkbox is checked');
-                // Add hidden field to form if not already present
-                if (!composerForm.find('input[name="isPrivate"]').length) {
-                    composerForm.append('<input type="hidden" name="isPrivate" value="1">');
-                    console.log('✅ Added hidden isPrivate field');
+    // Hook into NodeBB's composer submit filter hook using proper hooks system
+    if (typeof window.require !== 'undefined') {
+        try {
+            window.require(['hooks'], function(hooks) {
+                // Register the hook using NodeBB's proper hooks system
+                hooks.on('filter:composer.submit', function(hookData) {
+                    const checkbox = $('#privatePostCheckbox');
+                    
+                    if (checkbox.length && checkbox.is(':checked')) {
+                        hookData.composerData.isPrivate = 1;
+                    } else {
+                        hookData.composerData.isPrivate = 0;
+                    }
+                    
+                    return hookData;
+                });
+            });
+        } catch (e) {
+            // Fallback: Legacy form submission handler
+            $('.composer').off('click.privatePost', '[component="composer/submit"]');
+            $('.composer').on('click.privatePost', '[component="composer/submit"]', function(e) {
+                const checkbox = $('#privatePostCheckbox');
+                
+                if (checkbox.length && checkbox.is(':checked')) {
+                    // Set the checkbox name and value directly
+                    checkbox.attr('name', 'isPrivate');
+                    checkbox.attr('value', '1');
+                    checkbox.prop('checked', true);
+                    
+                    // Add hidden field to form as backup
+                    $('.composer').find('input[name="isPrivate"]').remove();
+                    const hiddenField = $('<input type="hidden" name="isPrivate" value="1">');
+                    $('.composer form, .composer').append(hiddenField);
+                } else {
+                    // Remove hidden field if checkbox is not checked
+                    $('.composer').find('input[name="isPrivate"]').remove();
                 }
-            }
-        });
-        
-        console.log('✅ Form submission handler attached');
+            });
+        }
     }
 }
 
 function addPrivatePostIndicators() {
-    console.log('🔍 Checking for private post indicators...');
+    // Multiple ways to check if topic is private (for topic pages)
+    let isPrivate = false;
+    let dataSource = '';
     
-    // Check if we're on a topic page
+    // Only do individual topic checks if we're on a topic page
+    if (window.location.pathname.includes('/topic/')) {
+        // Method 1: Check ajaxify data
+        if (typeof ajaxify !== 'undefined' && ajaxify.data && ajaxify.data.isPrivate) {
+            isPrivate = true;
+            dataSource = 'ajaxify.data';
+        }
+        
+        // Method 2: Check script tag with ajaxify data
+        if (!isPrivate) {
+            try {
+                const ajaxifyScript = $('#ajaxify-data');
+                if (ajaxifyScript.length) {
+                    const data = JSON.parse(ajaxifyScript.text());
+                    if (data && data.isPrivate) {
+                        isPrivate = true;
+                        dataSource = 'ajaxify-script';
+                    }
+                }
+            } catch (e) {
+                // Ignore parsing errors
+            }
+        }
+        
+        // Method 3: Check for data attributes on the page
+        if (!isPrivate) {
+            const topicContainer = $('.topic, [component="topic"]');
+            if (topicContainer.attr('data-private') === '1' || topicContainer.attr('data-private') === 'true') {
+                isPrivate = true;
+                dataSource = 'data-attribute';
+            }
+        }
+        
+        // Method 4: If all else fails, extract topic ID from URL and check via API
+        if (!isPrivate) {
+            const topicIdMatch = window.location.pathname.match(/\/topic\/(\d+)/);
+            if (topicIdMatch) {
+                const topicId = topicIdMatch[1];
+                
+                // Make a quick API call to check if topic is private
+                $.ajax({
+                    url: `/api/topic/${topicId}`,
+                    method: 'GET',
+                    success: function(data) {
+                        if (data && data.isPrivate) {
+                            isPrivate = true;
+                            dataSource = 'api-call';
+                            // Re-run the indicator logic with the confirmed data
+                            addPrivateIndicatorsWithData(true, 'api-call');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Silently fail
+                    }
+                });
+            }
+        }
+        
+        // Add indicators if topic is private
+        if (isPrivate) {
+            addPrivateIndicatorsWithData(isPrivate, dataSource);
+        }
+    }
+
+    // ALWAYS check for topic listings on any page (home, category, etc.)
+    $('[component="topic/item"], [component="category/topic"], li[data-tid]').each(function() {
+        const $topic = $(this);
+        const tid = $topic.attr('data-tid') || $topic.data('tid');
+        const isPrivateFromAttr = $topic.data('private') === 1 || $topic.attr('data-private') === '1';
+        
+        if (isPrivateFromAttr) {
+            const titleEl = $topic.find('[component="topic/title"], .topic-title, a[href*="/topic/"]');
+            if (titleEl.length && !titleEl.find('.private-listing-indicator').length) {
+                const privateIndicatorHtml = `
+                    <span class="private-listing-indicator badge bg-danger text-white ms-2">
+                        <i class="fa fa-lock me-1"></i>Private
+                    </span>
+                `;
+                titleEl.append(privateIndicatorHtml);
+            }
+            
+            // Add background styling to the entire topic row
+            $topic.addClass('private-topic-listing');
+        }
+    });
+    
+    // Force check known private topics by making API calls for recent topics
     if (!window.location.pathname.includes('/topic/')) {
-        console.log('ℹ️ Not on a topic page, skipping indicators');
+        $('[component="topic/item"], [component="category/topic"], li[data-tid]').each(function() {
+            const $topic = $(this);
+            const tid = $topic.attr('data-tid') || $topic.data('tid');
+            
+            if (tid && !$topic.find('.private-listing-indicator').length) {
+                // Quick API check for this topic
+                $.ajax({
+                    url: `/api/topic/${tid}`,
+                    method: 'GET',
+                    success: function(data) {
+                        if (data && data.isPrivate) {
+                            const titleEl = $topic.find('[component="topic/title"], .topic-title, a[href*="/topic/"]');
+                            if (titleEl.length && !titleEl.find('.private-listing-indicator').length) {
+                                const privateIndicatorHtml = `
+                                    <span class="private-listing-indicator badge bg-danger text-white ms-2">
+                                        <i class="fa fa-lock me-1"></i>Private
+                                    </span>
+                                `;
+                                titleEl.append(privateIndicatorHtml);
+                            }
+                            $topic.addClass('private-topic-listing');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Silently fail for listing checks
+                    }
+                });
+            }
+        });
+    }
+    
+    // Add CSS for listing indicators if not already added
+    if (!$('#private-listing-styles').length) {
+        $('head').append(`
+            <style id="private-listing-styles">
+            .private-topic-listing {
+                background-color: #fff5f5;
+                border-left: 3px solid #dc3545;
+            }
+            .private-listing-indicator {
+                font-size: 0.7rem;
+                vertical-align: top;
+            }
+            </style>
+        `);
+    }
+}
+
+function addPrivateIndicatorsWithData(isPrivate, dataSource) {
+    if (!isPrivate) return;
+    
+    // Only add indicators if we're on a topic page
+    if (!window.location.pathname.includes('/topic/')) {
         return;
     }
     
-    // Check if this topic is private by looking at ajaxify data
-    if (typeof ajaxify !== 'undefined' && ajaxify.data && ajaxify.data.isPrivate) {
-        console.log('🔒 Topic is private, adding indicators...');
-        
-        // Add lock icon to topic title if not already present
-        const topicTitle = $('[component="topic/title"]');
-        if (topicTitle.length && !topicTitle.find('.private-post-indicator').length) {
-            topicTitle.prepend('<i class="fa fa-lock private-post-indicator text-warning me-2" title="Private Post - Visible only to author and instructors"></i>');
-            console.log('✅ Added lock icon to topic title');
-        }
-        
-        // Add notification banner if not already present
-        const topicContainer = $('.topic');
-        if (topicContainer.length && !topicContainer.find('.private-post-banner').length) {
-            const bannerHtml = `
-                <div class="private-post-banner alert alert-warning d-flex align-items-center mb-3" role="alert">
-                    <i class="fa fa-lock me-2 text-warning"></i>
-                    <div>
-                        <div class="fw-semibold">Private Post</div>
-                        <div class="small">This post is only visible to the author and instructors.</div>
-                    </div>
-                </div>
-            `;
-            
-            topicContainer.prepend(bannerHtml);
-            console.log('✅ Added private post banner');
-        }
-        
-        // Add styling to make it more obvious
-        topicContainer.addClass('private-topic');
-        
-        // Add CSS for private topics if not already added
-        if (!$('#private-posts-styles').length) {
-            $('head').append(`
-                <style id="private-posts-styles">
-                .private-topic {
-                    border-left: 4px solid #ffc107;
-                    padding-left: 1rem;
-                }
-                .private-post-indicator {
-                    opacity: 0.8;
-                }
-                .private-post-banner {
-                    background-color: #fff3cd;
-                    border-color: #ffeaa7;
-                }
-                </style>
-            `);
-            console.log('✅ Added private post styles');
-        }
-    } else {
-        console.log('ℹ️ Topic is not private or data not available');
-        console.log('ajaxify.data:', typeof ajaxify !== 'undefined' ? ajaxify.data : 'ajaxify not available');
+    // Add prominent "Private" badge next to topic title
+    const topicTitle = $('[component="topic/title"]');
+    if (topicTitle.length && !topicTitle.find('.private-post-badge').length) {
+        const privateBadgeHtml = `
+            <span class="private-post-badge badge bg-danger text-white ms-2 me-2">
+                <i class="fa fa-lock me-1"></i>Private
+            </span>
+        `;
+        topicTitle.append(privateBadgeHtml);
     }
     
-    // Add lock icons to topic listings if we're on a category/listing page
-    $('[component="topic/item"]').each(function() {
-        const $topic = $(this);
-        const isPrivate = $topic.data('private') === 1 || $topic.attr('data-private') === '1';
-        if (isPrivate) {
-            const titleEl = $topic.find('[component="topic/title"]');
-            if (titleEl.length && !titleEl.find('.private-post-indicator').length) {
-                titleEl.prepend('<i class="fa fa-lock private-post-indicator text-warning me-1" title="Private Post"></i>');
-                console.log('✅ Added lock icon to topic listing');
+    // Add notification banner if not already present - only in topic containers
+    const topicContainer = $('.topic, [component="topic"]');
+    if (topicContainer.length && !topicContainer.find('.private-post-banner').length) {
+        const bannerHtml = `
+            <div class="private-post-banner alert alert-danger d-flex align-items-center mb-3" role="alert">
+                <i class="fa fa-lock me-2"></i>
+                <div>
+                    <div class="fw-bold">🔒 Private Post</div>
+                    <div class="small">This post is only visible to the author and instructors.</div>
+                </div>
+            </div>
+        `;
+        
+        topicContainer.first().prepend(bannerHtml);
+    }
+    
+    // Add styling to make it more obvious - only to topic containers
+    topicContainer.addClass('private-topic');
+    
+    // Add CSS for private topics if not already added
+    if (!$('#private-posts-styles').length) {
+        $('head').append(`
+            <style id="private-posts-styles">
+            .private-topic {
+                border-left: 4px solid #dc3545;
+                background-color: #fff5f5;
+                padding-left: 1rem;
             }
-        }
-    });
+            .private-post-badge {
+                font-size: 0.8rem;
+                vertical-align: middle;
+                animation: pulse 2s infinite;
+            }
+            .private-post-banner {
+                background-color: #f8d7da;
+                border-color: #f5c6cb;
+                color: #721c24;
+            }
+            .private-post-indicator {
+                color: #dc3545;
+                opacity: 0.9;
+            }
+            @keyframes pulse {
+                0% { opacity: 1; }
+                50% { opacity: 0.7; }
+                100% { opacity: 1; }
+            }
+            </style>
+        `);
+    }
 }
