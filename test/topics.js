@@ -688,6 +688,19 @@ describe('Topic\'s', () => {
 			assert(!isLocked);
 		});
 
+		it('should mark topic answered', async () => {
+			await apiTopics.lock({ uid: adminUid }, { tids: [newTopic.tid], cid: categoryObj.cid });
+			const isLocked = await topics.isLocked(newTopic.tid);
+			assert(isLocked);
+		});
+
+		it('should mark topic unanswered', async () => {
+			await apiTopics.unlock({ uid: adminUid }, { tids: [newTopic.tid], cid: categoryObj.cid });
+			const isLocked = await topics.isLocked(newTopic.tid);
+			assert(!isLocked);
+		});
+
+
 		it('should pin topic', async () => {
 			await apiTopics.pin({ uid: adminUid }, { tids: [newTopic.tid], cid: categoryObj.cid });
 			const pinned = await topics.getTopicField(newTopic.tid, 'pinned');
