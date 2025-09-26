@@ -357,3 +357,28 @@ topicsAPI.move = async (caller, { tid, cid }) => {
 
 	await categories.onTopicsMoved(cids);
 };
+
+
+topicsAPI.markAsOfficial = async function (caller, { tid, isOfficial }) {
+	if (!tid) {
+		throw new Error('[[error:invalid-tid]]');
+	}
+	// Check if the user has privileges to mark the topic as official
+	const canEdit = await privileges.topics.canEdit(tid, caller.uid);
+	if (!canEdit) {
+		throw new Error('[[error:no-privileges]]');
+	}
+
+	// Update the topic's isOfficial field
+	await topics.setTopicField(tid, 'isOfficial', isOfficial);
+
+	// Optionally log the action
+	await events.log({
+		type: isOfficial ? 'topic-marked-official' : 'topic-unmarked-official',
+		uid: caller.uid,
+		tid,
+		ip: caller.ip,
+	});
+
+	return { tid, isOfficial };
+};
