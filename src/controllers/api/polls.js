@@ -1,7 +1,6 @@
 'use strict';
 
 const polls = require('../../polls');
-const user = require('../../user');
 const helpers = require('../helpers');
 
 const apiController = module.exports;
@@ -19,7 +18,7 @@ apiController.create = async function (req, res) {
 			uid: req.uid,
 			multipleChoice: req.body.multipleChoice === 'true',
 			anonymous: req.body.anonymous === 'true',
-			endTime: req.body.endTime ? parseInt(req.body.endTime, 10) : 0
+			endTime: req.body.endTime ? parseInt(req.body.endTime, 10) : 0,
 		};
 
 		// Validate input
@@ -39,7 +38,7 @@ apiController.create = async function (req, res) {
 		}
 
 		const pollId = await polls.create(data);
-		helpers.formatApiResponse(200, res, { pollId: pollId });
+		helpers.formatApiResponse(200, res, { pollId });
 	} catch (err) {
 		helpers.formatApiResponse(500, res, err);
 	}
@@ -65,7 +64,7 @@ apiController.vote = async function (req, res) {
 		
 		// Return updated poll data
 		const pollData = await polls.get(pollId);
-		pollData.options.forEach(option => {
+		pollData.options.forEach((option) => {
 			option.percentage = pollData.totalVotes > 0 ? 
 				Math.round((option.votes / pollData.totalVotes) * 100) : 0;
 		});
@@ -95,7 +94,7 @@ apiController.get = async function (req, res) {
 		const pollId = req.params.poll_id;
 		const [pollData, hasVoted] = await Promise.all([
 			polls.get(pollId),
-			req.uid ? polls.hasVoted(pollId, req.uid) : false
+			req.uid ? polls.hasVoted(pollId, req.uid) : false,
 		]);
 
 		if (!pollData) {
@@ -103,8 +102,8 @@ apiController.get = async function (req, res) {
 		}
 
 		// Calculate percentages
-		pollData.options.forEach(option => {
-			option.percentage = pollData.totalVotes > 0 ? 
+		pollData.options.forEach((option) => {
+			option.percentage = pollData.totalVotes > 0 ?
 				Math.round((option.votes / pollData.totalVotes) * 100) : 0;
 		});
 
