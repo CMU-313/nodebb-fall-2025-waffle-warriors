@@ -1,1 +1,1 @@
-data-tid="{topics.tid}" data-index="{topics.index}" data-cid="{topics.cid}" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"
+data-tid="{topics.tid}" data-index="{topics.index}" data-cid="{topics.cid}" {{{ if topics.isPrivate }}}data-private="1"{{{ end }}} itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"
