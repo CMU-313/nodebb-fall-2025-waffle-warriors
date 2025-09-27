@@ -96,17 +96,19 @@ privsTopics.filterTids = async function (privilege, tids, uid) {
 	const canViewScheduled = _.zipObject(cids, results.view_scheduled);
 
 	// Filter topics by both standard permissions and private access
-	const filteredTopics = [];
-	for (const topic of topicsData) {
-		if (cidsSet.has(topic.cid) &&
-			(results.isAdmin || privsTopics.canViewDeletedScheduled(topic, {}, canViewDeleted[topic.cid], canViewScheduled[topic.cid]))) {
-			
-			// Check private topic access
-			if (await privsTopics.canViewPrivate(topic, uid)) {
-				filteredTopics.push(topic.tid);
-			}
-		}
-	}
+	const eligibleTopics = topicsData.filter(topic =>
+		cidsSet.has(topic.cid) &&
+		(results.isAdmin || privsTopics.canViewDeletedScheduled(
+			topic, {}, canViewDeleted[topic.cid], canViewScheduled[topic.cid]
+		)));
+
+	const privateAccessChecks = eligibleTopics.map(topic =>
+		privsTopics.canViewPrivate(topic, uid).then(canView => ({ topic, canView })));
+
+	const accessResults = await Promise.all(privateAccessChecks);
+	const filteredTopics = accessResults
+		.filter(({ canView }) => canView)
+		.map(({ topic }) => topic.tid);
 
 	const data = await plugins.hooks.fire('filter:privileges.topics.filter', {
 		privilege: privilege,
