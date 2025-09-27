@@ -21,6 +21,7 @@ const websockets = require('../socket.io');
 const socketHelpers = require('../socket.io/helpers');
 
 const topicsAPI = module.exports;
+const plugins = require('../plugins');
 
 topicsAPI._checkThumbPrivileges = async function ({ tid, uid }) {
 	// req.params.tid could be either a tid (pushing a new thumb to an existing topic)
@@ -295,6 +296,31 @@ topicsAPI.markUnread = async (caller, { tid }) => {
 	}
 	await topics.markUnread(tid, caller.uid);
 	topics.pushUnreadCount(caller.uid);
+};
+
+topicsAPI.markAnswered = async function (caller, data) {
+	const { tid } = data;
+
+	if (!tid) {
+		throw new Error('[[error:invalid-tid]]');
+	}
+
+	const isAdminOrMod = await privileges.topics.isAdminOrMod(tid, caller.uid);
+	if (!isAdminOrMod) {
+		throw new Error('[[error:no-privileges]]');
+	}
+
+	await topics.setTopicField(tid, 'answered', 1);
+	await topics.setTopicField(tid, 'answeredTimestamp', Date.now());
+
+	await topics.events.log(tid, {
+		type: 'answered',
+		uid: caller.uid,
+	});
+
+	// Change this line from meta.plugins.hooks.fire to plugins.hooks.fire
+	await plugins.hooks.fire('action:topic.markAsAnswered', { tid, uid: caller.uid });
+
 };
 
 topicsAPI.bump = async (caller, { tid }) => {
