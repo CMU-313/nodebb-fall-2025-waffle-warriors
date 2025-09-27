@@ -119,7 +119,7 @@ if (document.readyState === 'loading') {
 			
 			// Initialize private posts functionality
 			try {
-				require(['client/private-posts'], function() {
+				require(['client/private-posts'], function () {
 					console.log('✅ Private posts module loaded');
 				});
 			} catch (e) {
