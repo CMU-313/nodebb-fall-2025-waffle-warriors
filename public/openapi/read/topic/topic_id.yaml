@@ -150,6 +150,14 @@ get:
                         type: boolean
                       isAdminOrMod:
                         type: boolean
+                      isPrivate:
+                        type: number
+                        description: Set to 1 if the topic is private, otherwise 0.
+                        example: 0
+                      canViewPrivate:
+                        type: boolean
+                        description: Whether the current user has permission to view private topics.
+                        example: true
                       disabled:
                         type: number
                       tid:

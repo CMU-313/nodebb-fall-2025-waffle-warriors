@@ -1,0 +1,36 @@
+/* Private Post Styling */
+.private-post-indicator {
+    color: #6c757d;
+    margin-right: 5px;
+}
+
+.private-post-banner {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 0.375rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    color: #664d03;
+}
+
+.private-post-banner .alert-heading {
+    color: #664d03;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.private-post-option {
+    border: 1px solid #e3e6ea;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+}
+
+.private-post-option .form-check-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.topic-title .private-post-indicator {
+    font-size: 0.875em;
+}

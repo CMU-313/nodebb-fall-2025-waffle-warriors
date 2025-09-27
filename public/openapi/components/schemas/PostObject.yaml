@@ -116,6 +116,9 @@ PostObject:
           type: boolean
         renamed:
           type: boolean
+        isPrivate:
+          type: number
+          description: Whether this topic is private (1) or public (0)
         tags:
           type: array
           items:

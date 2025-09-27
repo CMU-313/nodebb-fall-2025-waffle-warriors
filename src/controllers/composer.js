@@ -29,6 +29,11 @@ exports.get = async function (req, res, callback) {
 		return callback(new Error('[[error:invalid-data]]'));
 	}
 
+	// Add private post functionality to composer data for new topics
+	if (req.query.cid && !req.query.tid && !req.query.pid) {
+		data.templateData.canCreatePrivate = true;
+	}
+
 	if (data.templateData.disabled) {
 		res.render('', {
 			title: '[[modules:composer.compose]]',
@@ -73,6 +78,7 @@ exports.post = async function (req, res) {
 			data.title = body.title;
 			data.tags = [];
 			data.thumb = '';
+			data.isPrivate = body.isPrivate ? 1 : 0;
 			result = await queueOrPost(topics.post, data);
 		} else {
 			throw new Error('[[error:invalid-data]]');
