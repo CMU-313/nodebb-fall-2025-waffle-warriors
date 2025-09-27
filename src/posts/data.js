@@ -64,6 +64,9 @@ function modifyPost(post, fields) {
 		if (post.hasOwnProperty('timestamp')) {
 			post.timestampISO = utils.toISOString(post.timestamp);
 		}
+		if (post.hasOwnProperty('is_anonymous')) {
+			post.is_anonymous = post.is_anonymous === 'true';
+		}
 		if (post.hasOwnProperty('edited')) {
 			post.editedISO = post.edited !== 0 ? utils.toISOString(post.edited) : '';
 		}

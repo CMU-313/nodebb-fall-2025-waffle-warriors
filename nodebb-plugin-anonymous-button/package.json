@@ -1,0 +1,8 @@
+{
+  "name": "nodebb-plugin-anonymous-button",
+  "version": "0.1.0",
+  "description": "Adds an anonymous button to the NodeBB composer",
+  "main": "library.js",
+  "author": "Your Name",
+  "license": "MIT"
+}
