@@ -1,0 +1,31 @@
+get:
+  tags:
+    - polls
+  summary: Get a specific poll
+  description: Retrieve details of a specific poll by ID
+  parameters:
+    - name: poll_id
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "1"
+  responses:
+    "200":
+      description: "Poll details"
+      content:
+        application/json:
+          schema:
+            type: object
+    "404":
+      description: "Poll not found"
+      content:
+        application/json:
+          schema:
+            type: object
+    "500":
+      description: "Internal server error"
+      content:
+        application/json:
+          schema:
+            type: object

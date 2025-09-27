@@ -1,0 +1,25 @@
+get:
+  tags:
+    - polls
+  summary: Edit poll page
+  description: Display the edit poll form
+  parameters:
+    - name: poll_id
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "1"
+  responses:
+    "200":
+      description: "Edit poll page"
+      content:
+        text/html:
+          schema:
+            type: string
+    "500":
+      description: "Internal server error"
+      content:
+        text/html:
+          schema:
+            type: string

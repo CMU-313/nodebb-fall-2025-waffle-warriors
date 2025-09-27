@@ -368,3 +368,11 @@ paths:
     $ref: 'read/ap.yaml'
   /api/outgoing:
     $ref: 'read/outgoing.yaml'
+  "/api/polls":
+    $ref: 'read/polls.yaml'
+  "/api/polls/create":
+    $ref: 'read/polls/create.yaml'
+  "/api/polls/{poll_id}":
+    $ref: 'read/polls/poll_id.yaml'
+  "/api/polls/{poll_id}/edit":
+    $ref: 'read/polls/poll_id/edit.yaml'

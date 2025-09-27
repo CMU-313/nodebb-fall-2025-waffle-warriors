@@ -1,0 +1,12 @@
+get:
+  tags:
+    - polls
+  summary: List polls
+  description: Retrieve a list of polls
+  responses:
+    "200":
+      description: "List of polls"
+      content:
+        application/json:
+          schema:
+            type: object
