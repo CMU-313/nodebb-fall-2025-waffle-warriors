@@ -64,4 +64,17 @@ module.exports = function (SocketTopics) {
 
 		await Promise.all(tids.map(async tid => api.topics.bump(socket, { tid })));
 	};
+	
+	SocketTopics.markAsAnswered = async function (socket, tids) {
+		if (!Array.isArray(tids)) {
+			tids = [tids];
+		}
+		
+		if (!tids.length || socket.uid <= 0) {
+			throw new Error('[[error:invalid-data]]');
+		}
+		await Promise.all(tids.map(async (tid) => {
+			return await api.topics.markAnswered(socket, { tid });
+		}));
+	};
 };

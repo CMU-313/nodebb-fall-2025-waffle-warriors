@@ -21,6 +21,7 @@ const websockets = require('../socket.io');
 const socketHelpers = require('../socket.io/helpers');
 
 const topicsAPI = module.exports;
+const plugins = require('../plugins');
 
 topicsAPI._checkThumbPrivileges = async function ({ tid, uid }) {
 	// req.params.tid could be either a tid (pushing a new thumb to an existing topic)
@@ -297,6 +298,31 @@ topicsAPI.markUnread = async (caller, { tid }) => {
 	topics.pushUnreadCount(caller.uid);
 };
 
+topicsAPI.markAnswered = async function (caller, data) {
+	const { tid } = data;
+
+	if (!tid) {
+		throw new Error('[[error:invalid-tid]]');
+	}
+
+	const isAdminOrMod = await privileges.topics.isAdminOrMod(tid, caller.uid);
+	if (!isAdminOrMod) {
+		throw new Error('[[error:no-privileges]]');
+	}
+
+	await topics.setTopicField(tid, 'answered', 1);
+	await topics.setTopicField(tid, 'answeredTimestamp', Date.now());
+
+	await topics.events.log(tid, {
+		type: 'answered',
+		uid: caller.uid,
+	});
+
+	// Change this line from meta.plugins.hooks.fire to plugins.hooks.fire
+	await plugins.hooks.fire('action:topic.markAsAnswered', { tid, uid: caller.uid });
+
+};
+
 topicsAPI.bump = async (caller, { tid }) => {
 	if (!tid) {
 		throw new Error('[[error:invalid-tid]]');
@@ -356,4 +382,29 @@ topicsAPI.move = async (caller, { tid, cid }) => {
 	}, { batch: 10 });
 
 	await categories.onTopicsMoved(cids);
+};
+
+
+topicsAPI.markAsOfficial = async function (caller, { tid, isOfficial }) {
+	if (!tid) {
+		throw new Error('[[error:invalid-tid]]');
+	}
+	// Check if the user has privileges to mark the topic as official
+	const canEdit = await privileges.topics.canEdit(tid, caller.uid);
+	if (!canEdit) {
+		throw new Error('[[error:no-privileges]]');
+	}
+
+	// Update the topic's isOfficial field
+	await topics.setTopicField(tid, 'isOfficial', isOfficial);
+
+	// Optionally log the action
+	await events.log({
+		type: isOfficial ? 'topic-marked-official' : 'topic-unmarked-official',
+		uid: caller.uid,
+		tid,
+		ip: caller.ip,
+	});
+
+	return { tid, isOfficial };
 };

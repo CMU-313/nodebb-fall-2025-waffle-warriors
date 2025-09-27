@@ -82,6 +82,14 @@ define('forum/topic/threadTools', [
 				btn.parents('.thread-tools.open').find('.dropdown-toggle').trigger('click');
 			});
 		});
+		
+		topicContainer.on('click', '[component="topic/mark-answered"]', function () {
+			const btn = $(this);
+			topicCommand('put', '/answered', undefined, () => {
+				alerts.success('[[topic:markAsAnswered.success]]');
+				btn.parents('.thread-tools.open').find('.dropdown-toggle').trigger('click');
+			});
+		});
 
 		topicContainer.on('click', '[component="topic/event/delete"]', function () {
 			const eventId = $(this).attr('data-topic-event-id');
