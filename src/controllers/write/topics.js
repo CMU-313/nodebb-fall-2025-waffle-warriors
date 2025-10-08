@@ -53,6 +53,7 @@ async function lockPosting(req, error) {
 }
 
 Topics.delete = async (req, res) => {
+	console.log('i am deleting topic');
 	await api.topics.delete(req, { tids: [req.params.tid] });
 	helpers.formatApiResponse(200, res);
 };
@@ -220,3 +221,18 @@ Topics.move = async (req, res) => {
 
 	helpers.formatApiResponse(200, res);
 };
+
+Topics.markAnswered = async (req, res) => {
+	const { tid } = req.params;
+	await topics.setTopicField(tid, 'answered', 1);
+	await topics.setTopicField(tid, 'answeredTimestamp', Date.now());
+	helpers.formatApiResponse(200, res, { tid, answered: true });
+};
+  
+Topics.unmarkAnswered = async (req, res) => {
+	const { tid } = req.params;
+	await topics.setTopicField(tid, 'answered', 0);
+	helpers.formatApiResponse(200, res, { tid, answered: false });
+};
+  
+  
