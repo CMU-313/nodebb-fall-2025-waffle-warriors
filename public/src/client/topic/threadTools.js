@@ -61,21 +61,58 @@ define('forum/topic/threadTools', [
 			return false;
 		});
 
+		
 		topicContainer.on('click', '[component="topic/mark-answered"]', function () {
+			const $menu = $(this).closest('.dropdown-menu');
 			topicCommand('put', '/answered', undefined, () => {
-				$('[component="topic/mark-answered"]').closest('li').addClass('hidden');
-				$('[component="topic/unmark-answered"]').closest('li').removeClass('hidden');
+				// update both places
+				ajaxify.data.topic = ajaxify.data.topic || {};
+				ajaxify.data.topic.answered = 1;
+				ajaxify.data.answered = 1;
+			
+				// swap menu items
+				$menu.find('[component="topic/mark-answered"]').closest('li').addClass('hidden');
+				$menu.find('[component="topic/unmark-answered"]').closest('li').removeClass('hidden');
+			
+				// (optional) show an answered badge if you render one:
+				// $('[component="topic/labels"] [component="topic/answered"]').removeClass('hidden');
+			});
+			return false;
+		});
+		
+		topicContainer.on('click', '[component="topic/unmark-answered"]', function () {
+			const $menu = $(this).closest('.dropdown-menu');
+			topicCommand('del', '/answered', undefined, () => {
+				ajaxify.data.topic = ajaxify.data.topic || {};
+				ajaxify.data.topic.answered = 0;
+				ajaxify.data.answered = 0;
+			
+				$menu.find('[component="topic/unmark-answered"]').closest('li').addClass('hidden');
+				$menu.find('[component="topic/mark-answered"]').closest('li').removeClass('hidden');
+			
+				// (optional)
+				// $('[component="topic/labels"] [component="topic/answered"]').addClass('hidden');
 			});
 			return false;
 		});
 		  
-		topicContainer.on('click', '[component="topic/unmark-answered"]', function () {
-			topicCommand('del', '/answered', undefined, () => {
-				$('[component="topic/unmark-answered"]').closest('li').addClass('hidden');
-				$('[component="topic/mark-answered"]').closest('li').removeClass('hidden');
-			});
-			return false;
-		});
+  
+
+		// topicContainer.on('click', '[component="topic/mark-answered"]', function () {
+		// 	topicCommand('put', '/answered', undefined, () => {
+		// 		$('[component="topic/mark-answered"]').closest('li').addClass('hidden');
+		// 		$('[component="topic/unmark-answered"]').closest('li').removeClass('hidden');
+		// 	});
+		// 	return false;
+		// });
+		  
+		// topicContainer.on('click', '[component="topic/unmark-answered"]', function () {
+		// 	topicCommand('del', '/answered', undefined, () => {
+		// 		$('[component="topic/unmark-answered"]').closest('li').addClass('hidden');
+		// 		$('[component="topic/mark-answered"]').closest('li').removeClass('hidden');
+		// 	});
+		// 	return false;
+		// });
 		  
 
 		topicContainer.on('click', '[component="topic/mark-unread"]', function () {

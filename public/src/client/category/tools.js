@@ -128,27 +128,58 @@ define('forum/category/tools', [
 			});
 		});
 
-
 		components.get('topic/mark-answered').on('click', function () {
 			categoryCommand('put', '/answered', 'mark-answered', function () {
-				// reflect in UI for selected rows
 				const tids = topicSelect.getSelectedTids();
 				tids.forEach(tid => getTopicEl(tid).addClass('answered').data('answered', 1));
+
+				// instantly swap the two items in this dropdown
+				const menu = $(document).find('.thread-tools .dropdown-menu:visible');
+				menu.find('[component="topic/mark-answered"]').closest('li').addClass('hidden');
+				menu.find('[component="topic/unmark-answered"]').closest('li').removeClass('hidden');
+
 				onCommandComplete();
-				updateDropdownOptions();
+				updateDropdownOptions(); // keeps things consistent if selection changes
 			});
 			return false;
 		});
-		
+
 		components.get('topic/unmark-answered').on('click', function () {
 			categoryCommand('del', '/answered', 'unmark-answered', function () {
 				const tids = topicSelect.getSelectedTids();
 				tids.forEach(tid => getTopicEl(tid).removeClass('answered').data('answered', 0));
+
+				const menu = $(document).find('.thread-tools .dropdown-menu:visible');
+				menu.find('[component="topic/unmark-answered"]').closest('li').addClass('hidden');
+				menu.find('[component="topic/mark-answered"]').closest('li').removeClass('hidden');
+
 				onCommandComplete();
 				updateDropdownOptions();
 			});
 			return false;
 		});
+		  
+
+		// components.get('topic/mark-answered').on('click', function () {
+		// 	categoryCommand('put', '/answered', 'mark-answered', function () {
+		// 		// reflect in UI for selected rows
+		// 		const tids = topicSelect.getSelectedTids();
+		// 		tids.forEach(tid => getTopicEl(tid).addClass('answered').data('answered', 1));
+		// 		onCommandComplete();
+		// 		updateDropdownOptions();
+		// 	});
+		// 	return false;
+		// });
+		
+		// components.get('topic/unmark-answered').on('click', function () {
+		// 	categoryCommand('del', '/answered', 'unmark-answered', function () {
+		// 		const tids = topicSelect.getSelectedTids();
+		// 		tids.forEach(tid => getTopicEl(tid).removeClass('answered').data('answered', 0));
+		// 		onCommandComplete();
+		// 		updateDropdownOptions();
+		// 	});
+		// 	return false;
+		// });
 		  
 
 		CategoryTools.removeListeners();

@@ -15,12 +15,16 @@
 	<a component="topic/unpin" href="#" class="dropdown-item rounded-1 d-flex align-items-center gap-2 {{{ if !pinned }}}hidden{{{ end }}}" role="menuitem"><i class="fa fa-fw fa-thumb-tack fa-rotate-90 text-secondary"></i> [[topic:thread-tools.unpin]]</a>
 </li>
 
-<li {{{ if answered }}}hidden{{{ end }}}>
-	<a component="topic/mark-answered" href="#" class="dropdown-item rounded-1 d-flex align-items-center gap-2" role="menuitem"><i class="fa fa-fw fa-check-circle text-success"></i> Mark Answered</a>
+<li class="{{{ if answered }}}hidden{{{ end }}}">
+  <a component="topic/mark-answered" href="#" class="dropdown-item rounded-1 d-flex align-items-center gap-2" role="menuitem">
+    <i class="fa fa-fw fa-check-circle text-success"></i> Mark Answered
+  </a>
 </li>
 
-<li {{{ if !answered }}}hidden{{{ end }}}>
-	<a component="topic/unmark-answered" href="#" class="dropdown-item rounded-1 d-flex align-items-center gap-2" role="menuitem"><i class="fa fa-fw fa-times-circle text-danger"></i> Mark Unanswered</a>
+<li class="{{{ if !answered }}}hidden{{{ end }}}">
+  <a component="topic/unmark-answered" href="#" class="dropdown-item rounded-1 d-flex align-items-center gap-2" role="menuitem">
+    <i class="fa fa-fw fa-times-circle text-danger"></i> Mark Unanswered
+  </a>
 </li>
 
 <li>
