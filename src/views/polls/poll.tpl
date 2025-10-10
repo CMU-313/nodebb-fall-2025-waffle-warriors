@@ -56,13 +56,7 @@
 				<div class="poll-option-result mb-3">
 					<div class="d-flex justify-content-between align-items-center mb-1">
 						<span class="fw-medium">{./text}</span>
-						<span class="text-muted small">{./votes} votes ({./percentage}%)</span>
-					</div>
-					<div class="progress" style="height: 20px;">
-						<div class="progress-bar" role="progressbar" style="width: {./percentage}%"
-							 aria-valuenow="{./percentage}" aria-valuemin="0" aria-valuemax="100">
-							{./percentage}%
-						</div>
+						<span class="text-muted small">{./votes} votes</span>
 					</div>
 				</div>
 				{{{ end }}}
@@ -100,39 +94,6 @@
 	</div>
 
 	<div class="col-lg-3">
-		<div class="card">
-			<div class="card-header">
-				<h5 class="card-title mb-0">Poll Information</h5>
-			</div>
-			<div class="card-body">
-				<div class="mb-3">
-					<strong>Type:</strong><br>
-					{{{ if poll.multipleChoice }}}
-					<span class="badge bg-info">Multiple Choice</span>
-					{{{ else }}}
-					<span class="badge bg-primary">Single Choice</span>
-					{{{ end }}}
-				</div>
-				{{{ if poll.anonymous }}}
-				<div class="mb-3">
-					<span class="badge bg-secondary">Anonymous</span>
-				</div>
-				{{{ end }}}
-				<div class="mb-3">
-					<strong>Options:</strong> {poll.options.length}
-				</div>
-				<div class="mb-3">
-					<strong>Status:</strong><br>
-					
-					<span class="badge bg-success">active</span>
-		
-		
-
-
-				</div>
-			</div>
-		</div>
-
 		<div data-widget-area="sidebar">
 			{{{each widgets.sidebar}}}
 			{{widgets.sidebar.html}}
