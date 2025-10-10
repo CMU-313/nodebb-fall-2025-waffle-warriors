@@ -15,9 +15,8 @@ Polls.create = async function (data) {
 		description: data.description || '',
 		uid: data.uid,
 		timestamp: timestamp,
-		endTime: data.endTime || 0,
-		multipleChoice: data.multipleChoice || false,
-		anonymous: data.anonymous || false,
+		multipleChoice: false,
+		anonymous: false,
 		status: 'active',
 	};
 	
@@ -27,15 +26,16 @@ Polls.create = async function (data) {
 	
 	// Add poll options
 	if (data.options && Array.isArray(data.options)) {
-		for (let i = 0; i < data.options.length; i++) {
+		const optionPromises = data.options.map(async (optionText, i) => {
 			const optionData = {
 				optionId: i,
-				text: data.options[i],
+				text: optionText,
 				votes: 0,
 			};
 			await db.setObject(`poll:${pollId}:option:${i}`, optionData);
 			await db.listAppend(`poll:${pollId}:options`, i);
-		}
+		});
+		await Promise.all(optionPromises);
 	}
 	
 	return pollId;
@@ -48,14 +48,9 @@ Polls.get = async function (pollId) {
 	}
 	
 	const optionIds = await db.getListRange(`poll:${pollId}:options`, 0, -1);
-	const options = [];
-	
-	for (const optionId of optionIds) {
-		const option = await db.getObject(`poll:${pollId}:option:${optionId}`);
-		if (option) {
-			options.push(option);
-		}
-	}
+	const optionsPromises = optionIds.map(optionId => db.getObject(`poll:${pollId}:option:${optionId}`));
+	const optionObjects = await Promise.all(optionsPromises);
+	const options = optionObjects.filter(option => option);
 	
 	pollData.options = options;
 	pollData.totalVotes = options.reduce((sum, option) => sum + parseInt(option.votes || 0, 10), 0);
@@ -96,10 +91,11 @@ Polls.vote = async function (pollId, uid, optionIds) {
 	await db.sortedSetAdd(`poll:${pollId}:voters`, Date.now(), uid);
 	
 	// Update vote counts
-	for (const optionId of optionIds) {
-		await db.incrObjectField(`poll:${pollId}:option:${optionId}`, 'votes');
-		await db.sortedSetAdd(`poll:${pollId}:option:${optionId}:voters`, Date.now(), uid);
-	}
+	const votePromises = optionIds.map(optionId => Promise.all([
+		db.incrObjectField(`poll:${pollId}:option:${optionId}`, 'votes'),
+		db.sortedSetAdd(`poll:${pollId}:option:${optionId}:voters`, Date.now(), uid),
+	]));
+	await Promise.all(votePromises);
 	
 	return true;
 };
@@ -110,18 +106,18 @@ Polls.hasVoted = async function (pollId, uid) {
 
 Polls.getPolls = async function (start, stop) {
 	const pollIds = await db.getSortedSetRevRange('polls:created', start, stop);
-	const polls = [];
-	
-	for (const pollId of pollIds) {
+	const pollsPromises = pollIds.map(async (pollId) => {
 		const poll = await Polls.get(pollId);
 		if (poll) {
 			const userData = await user.getUserFields(poll.uid, ['username', 'picture']);
 			poll.user = userData;
-			polls.push(poll);
+			return poll;
 		}
-	}
-	
-	return polls;
+		return null;
+	});
+
+	const polls = await Promise.all(pollsPromises);
+	return polls.filter(poll => poll);
 };
 
 Polls.getCount = async function () {
@@ -147,10 +143,11 @@ Polls.delete = async function (pollId, uid) {
 	
 	// Delete options and votes
 	const optionIds = await db.getListRange(`poll:${pollId}:options`, 0, -1);
-	for (const optionId of optionIds) {
-		await db.delete(`poll:${pollId}:option:${optionId}`);
-		await db.delete(`poll:${pollId}:option:${optionId}:voters`);
-	}
+	const optionDeletionPromises = optionIds.map(optionId => Promise.all([
+		db.delete(`poll:${pollId}:option:${optionId}`),
+		db.delete(`poll:${pollId}:option:${optionId}:voters`),
+	]));
+	await Promise.all(optionDeletionPromises);
 	await db.delete(`poll:${pollId}:options`);
 	await db.delete(`poll:${pollId}:voters`);
 	

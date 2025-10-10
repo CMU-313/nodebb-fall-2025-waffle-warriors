@@ -51,32 +51,7 @@
 						<div class="form-text">Add 2-10 options for users to choose from</div>
 					</div>
 
-					<div class="row mb-3">
-						<div class="col-md-6">
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" id="multiple-choice" name="multipleChoice">
-								<label class="form-check-label" for="multiple-choice">
-									Allow multiple selections
-								</label>
-								<div class="form-text">Users can select more than one option</div>
-							</div>
-						</div>
-						<div class="col-md-6">
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" id="anonymous" name="anonymous">
-								<label class="form-check-label" for="anonymous">
-									Anonymous voting
-								</label>
-								<div class="form-text">Hide voter identities</div>
-							</div>
-						</div>
-					</div>
 
-					<div class="mb-3">
-						<label for="end-time" class="form-label">End Time (Optional)</label>
-						<input type="datetime-local" class="form-control" id="end-time" name="endTime">
-						<div class="form-text">Leave empty for no expiration</div>
-					</div>
 
 					<div class="d-flex gap-2">
 						<button type="submit" class="btn btn-primary">
@@ -104,15 +79,15 @@
 					</li>
 					<li class="mb-2">
 						<i class="fa fa-list text-info"></i>
-						Provide balanced and comprehensive options
+						Provide 2-10 balanced options
 					</li>
 					<li class="mb-2">
 						<i class="fa fa-users text-success"></i>
 						Consider your audience when writing options
 					</li>
 					<li class="mb-2">
-						<i class="fa fa-clock text-primary"></i>
-						Set an end time for time-sensitive polls
+						<i class="fa fa-check text-primary"></i>
+						Get community input on important decisions
 					</li>
 				</ul>
 			</div>
@@ -229,10 +204,7 @@
 			const data = {
 				title: formData.get('title'),
 				description: formData.get('description'),
-				options: options,
-				multipleChoice: formData.get('multipleChoice') === 'on',
-				anonymous: formData.get('anonymous') === 'on',
-				endTime: formData.get('endTime') ? new Date(formData.get('endTime')).getTime() : 0
+				options: options
 			};
 
 			console.log('Sending data:', data);
