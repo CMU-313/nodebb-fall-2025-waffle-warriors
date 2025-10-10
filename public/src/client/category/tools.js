@@ -128,6 +128,38 @@ define('forum/category/tools', [
 			});
 		});
 
+		components.get('topic/mark-answered').on('click', function () {
+			categoryCommand('put', '/answered', 'mark-answered', function () {
+				const tids = topicSelect.getSelectedTids();
+				tids.forEach(tid => getTopicEl(tid).addClass('answered').data('answered', 1));
+
+				// instantly swap the two items in this dropdown
+				const menu = $(document).find('.thread-tools .dropdown-menu:visible');
+				menu.find('[component="topic/mark-answered"]').closest('li').addClass('hidden');
+				menu.find('[component="topic/unmark-answered"]').closest('li').removeClass('hidden');
+
+				onCommandComplete();
+				updateDropdownOptions(); // keeps things consistent if selection changes
+			});
+			return false;
+		});
+
+		components.get('topic/unmark-answered').on('click', function () {
+			categoryCommand('del', '/answered', 'unmark-answered', function () {
+				const tids = topicSelect.getSelectedTids();
+				tids.forEach(tid => getTopicEl(tid).removeClass('answered').data('answered', 0));
+
+				const menu = $(document).find('.thread-tools .dropdown-menu:visible');
+				menu.find('[component="topic/unmark-answered"]').closest('li').addClass('hidden');
+				menu.find('[component="topic/mark-answered"]').closest('li').removeClass('hidden');
+
+				onCommandComplete();
+				updateDropdownOptions();
+			});
+			return false;
+		});
+		  
+
 		CategoryTools.removeListeners();
 		socket.on('event:topic_deleted', setDeleteState);
 		socket.on('event:topic_restored', setDeleteState);
@@ -211,6 +243,7 @@ define('forum/category/tools', [
 		const areAllDeleted = areAll(isTopicDeleted, tids);
 		const isAnyPinned = isAny(isTopicPinned, tids);
 		const isAnyLocked = isAny(isTopicLocked, tids);
+		const isAnyAnswered = isAny(isTopicAnswered, tids);
 		const isAnyScheduled = isAny(isTopicScheduled, tids);
 		const areAllScheduled = areAll(isTopicScheduled, tids);
 
@@ -225,6 +258,9 @@ define('forum/category/tools', [
 		components.get('topic/unpin').toggleClass('hidden', areAllScheduled || !isAnyPinned);
 
 		components.get('topic/merge').toggleClass('hidden', isAnyScheduled);
+
+		components.get('topic/mark-answered').toggleClass('hidden', isAnyAnswered);
+		components.get('topic/unmark-answered').toggleClass('hidden', !isAnyAnswered);
 	}
 
 	function isAny(method, tids) {
@@ -257,6 +293,12 @@ define('forum/category/tools', [
 		return getTopicEl(tid).hasClass('pinned');
 	}
 
+	function isTopicAnswered(tid) {
+		const el = getTopicEl(tid);
+		return el.hasClass('answered') || String(el.data('answered')) === '1';
+	}
+	  
+	
 	function isTopicScheduled(tid) {
 		return getTopicEl(tid).hasClass('scheduled');
 	}
