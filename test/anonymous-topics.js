@@ -1,6 +1,7 @@
 // testing file written by ChatGPT based on the requirements provided
+'use strict';
+
 const assert = require('assert');
-const should = require('should');
 
 const db = require.main.require('./src/database');
 const Topics = require.main.require('./src/topics');
@@ -41,9 +42,10 @@ describe('Anonymous Topic Feature', () => {
 				tags: ['anonymous'],
 			});
 			tid = topicData.topicData.tid;
-			should.exist(tid);
+			assert.ok(tid, 'Topic ID should exist');
+
 			const topic = await Topics.getTopicData(tid);
-			topic.is_anonymous.should.be.true();
+			assert.strictEqual(topic.is_anonymous, true);
 		});
 
 		it('should PREVENT a regular user from creating a new anonymous topic', async () => {
@@ -104,10 +106,10 @@ describe('Anonymous Topic Feature', () => {
 			const topicWithPosts = await Topics.getTopicWithPosts(fullTopicData, `tid:${tid}:posts`, adminUid, 0, -1, false);
 			const loadedPosts = topicWithPosts.posts;
 
-			loadedPosts.should.have.length(3);
-			loadedPosts[0].user.username.should.equal('anon_person'); // topic starter
-			loadedPosts[1].user.username.should.equal('anon_person_1'); // first reply by different user
-			loadedPosts[2].user.username.should.equal('anon_person'); // reply by original topic starter
+			assert.strictEqual(loadedPosts.length, 3);
+			assert.strictEqual(loadedPosts[0].user.username, 'anon_person');
+			assert.strictEqual(loadedPosts[1].user.username, 'anon_person_1');
+			assert.strictEqual(loadedPosts[2].user.username, 'anon_person');
 		});
 
 		it('should display the topic starter as "anon_person" and a different post author as "anon_person_1"', async () => {
@@ -132,30 +134,28 @@ describe('Anonymous Topic Feature', () => {
 			const topicWithPosts = await Topics.getTopicWithPosts(fullTopicData, `tid:${tid}:posts`, adminUid, 0, -1, false);
 			const loadedPosts = topicWithPosts.posts;
 
-			loadedPosts.should.have.length(2); // main post + reply
-			loadedPosts[0].user.username.should.equal('anon_person'); // topic starter
-			loadedPosts[1].user.username.should.equal('anon_person_1'); // reply by second user
+			assert.strictEqual(loadedPosts.length, 2);
+			assert.strictEqual(loadedPosts[0].user.username, 'anon_person');
+			assert.strictEqual(loadedPosts[1].user.username, 'anon_person_1');
 		});
 	});
 
-
 	describe('State Reversion', () => {
 		it('should revert to real user identities after the "anonymous" tag is removed', async () => {
-			// 1. Create an anonymous topic
 			const topicData = await Topics.post({ uid: adminUid, cid: cid, title: 'Reversion Test', content: 'Content Content', tags: ['anonymous'] });
 			tid = topicData.topicData.tid;
 
-			// 2. Verify it's anonymous on the topic list
+			// Verify anonymous
 			let topics = await Topics.getTopicsByTids([tid], adminUid);
-			topics[0].user.username.should.equal('anon_person');
+			assert.strictEqual(topics[0].user.username, 'anon_person');
 
-			// 3. Remove the anonymous tag
+			// Remove anonymous tag
 			await Topics.updateTopicTags(tid, []);
 
-			// 4. Fetch the topic list again and verify it has reverted
+			// Verify reverted
 			topics = await Topics.getTopicsByTids([tid], adminUid);
-			topics[0].user.username.should.equal('test-admin');
-			topics[0].is_anonymous.should.be.false();
+			assert.strictEqual(topics[0].user.username, 'test-admin');
+			assert.strictEqual(topics[0].is_anonymous, false);
 		});
 	});
 
@@ -165,7 +165,6 @@ describe('Anonymous Topic Feature', () => {
 				await categories.purge(cid);
 			}
 
-			// Clean up users only if they exist and aren’t already being deleted
 			await Promise.allSettled([
 				adminUid ? user.delete(adminUid) : null,
 				userUid ? user.delete(userUid) : null,
@@ -174,5 +173,4 @@ describe('Anonymous Topic Feature', () => {
 			console.error('Cleanup failed:', err);
 		}
 	});
-
 });
