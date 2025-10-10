@@ -52,7 +52,7 @@ module.exports = function (Topics) {
 		await db.setObject(`topic:${topicData.tid}`, topicData);
 
 		// Private topics should not appear in public category listings
-		const isPrivate = topicData.isPrivate === 1 || topicData.isPrivate === "1";
+		const isPrivate = topicData.isPrivate === 1 || topicData.isPrivate === '1';
 		const timestampedSortedSetKeys = [
 			'topics:tid',
 			// Only add to public category sets if not private
