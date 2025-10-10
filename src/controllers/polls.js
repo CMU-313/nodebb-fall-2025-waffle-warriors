@@ -77,6 +77,63 @@ pollsController.create = async function (req, res) {
 	});
 };
 
+pollsController.createPost = async function (req, res) {
+	if (!req.uid) {
+		return helpers.notAllowed(req, res);
+	}
+
+	try {
+		const data = {
+			title: req.body.title,
+			description: req.body.description,
+			options: req.body.options,
+			uid: req.uid,
+			multipleChoice: req.body.multipleChoice === 'on',
+			anonymous: req.body.anonymous === 'on',
+			endTime: req.body.endTime ? new Date(req.body.endTime).getTime() : 0
+		};
+
+		// Validate input
+		if (!data.title || !data.title.trim()) {
+			return res.render('polls/create', {
+				title: 'Create Poll',
+				error: 'Poll title is required',
+				data: req.body
+			});
+		}
+
+		if (!data.options || !Array.isArray(data.options) || data.options.length < 2) {
+			return res.render('polls/create', {
+				title: 'Create Poll',
+				error: 'At least 2 options are required',
+				data: req.body
+			});
+		}
+
+		// Filter out empty options
+		data.options = data.options.filter(option => option && option.trim()).slice(0, 10);
+
+		if (data.options.length < 2) {
+			return res.render('polls/create', {
+				title: 'Create Poll',
+				error: 'At least 2 options are required',
+				data: req.body
+			});
+		}
+
+		const pollId = await polls.create(data);
+
+		res.redirect(`/polls`);
+	} catch (err) {
+		console.error('Poll creation error:', err);
+		res.render('polls/create', {
+			title: 'Create Poll',
+			error: err.message || 'Error creating poll',
+			data: req.body
+		});
+	}
+};
+
 pollsController.edit = async function (req, res, next) {
 	const pollId = req.params.poll_id;
 	

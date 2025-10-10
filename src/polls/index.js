@@ -76,8 +76,8 @@ Polls.vote = async function (pollId, uid, optionIds) {
 	if (pollData.status !== 'active') {
 		throw new Error('[[error:poll-not-active]]');
 	}
-	
-	if (pollData.endTime && Date.now() > pollData.endTime) {
+
+	if (pollData.endTime > 0 && Date.now() > pollData.endTime) {
 		throw new Error('[[error:poll-ended]]');
 	}
 	
