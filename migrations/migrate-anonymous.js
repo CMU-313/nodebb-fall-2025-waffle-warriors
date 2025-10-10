@@ -1,45 +1,58 @@
 'use strict';
 
 const Redis = require('ioredis');
-const config = require('../config.json'); // load config dynamically
+const config = require('../config.json');
 
 const redis = new Redis(config.redis);
 
-function migrateAnonymousFields(limit = null) {
-    redis.zrange('posts:pid', 0, -1)
-        .then((pids) => {
-            const slice = limit ? pids.slice(0, limit) : pids;
-            console.log(`Found ${pids.length} posts. Migrating ${slice.length}...`);
+async function migrateAnonymousFields(limit = null) {
+    try {
+        const tids = await redis.zrange('topics:tid', 0, -1);
+        const slice = limit ? tids.slice(0, limit) : tids;
+        console.log(`Found ${tids.length} topics. Migrating ${slice.length}...`);
 
-            const promises = slice.map((pid) => {
-                const key = `post:${pid}`;
-                return redis.hgetall(key).then((post) => {
-                    if (!post.hasOwnProperty('is_anonymous')) {
-                        return redis.hset(key, 'is_anonymous', false).then(() => 1);
-                    }
+        let updatedCount = 0;
 
-                    const boolVal = post.is_anonymous === '1' || post.is_anonymous === 'true' || post.is_anonymous === true;
-                    if (post.is_anonymous !== boolVal) {
-                        return redis.hset(key, 'is_anonymous', boolVal).then(() => 1);
-                    }
+        for (const tid of slice) {
+            const topicKey = `topic:${tid}`;
+            const topic = await redis.hgetall(topicKey);
+            if (!topic) continue;
 
-                    return 0;
-                });
-            });
+            // Normalize is_anonymous to boolean
+            const isAnonymous = topic.is_anonymous === 'true' || topic.is_anonymous === true;
 
-            return Promise.all(promises).then((results) => {
-                const updatedCount = results.reduce((acc, val) => acc + val, 0);
-                console.log(`Migration complete. Updated ${updatedCount} fields in ${slice.length} posts.`);
-            });
-        })
-        .catch((err) => {
-            console.error('Migration failed:', err);
-        })
-        .finally(() => {
-            redis.disconnect();
-        });
+            // Update topic
+            await redis.hset(topicKey, 'is_anonymous', isAnonymous ? 'true' : 'false');
+            await redis.hdel(topicKey, 'allow_anonymous');
+            updatedCount++;
+
+            // Update all posts under this topic
+            const postPids = await redis.zrange(`tid:${tid}:posts`, 0, -1);
+            // Include mainPid if it exists and not in zrange
+            if (topic.mainPid && !postPids.includes(topic.mainPid)) {
+                postPids.unshift(topic.mainPid);
+            }
+
+            for (const pid of postPids) {
+                const postKey = `post:${pid}`;
+                const post = await redis.hgetall(postKey);
+                if (!post) continue;
+
+                await redis.hset(postKey, 'is_anonymous', isAnonymous ? 'true' : 'false');
+                await redis.hdel(postKey, 'allow_anonymous');
+                updatedCount++;
+            }
+        }
+
+        console.log(`Migration complete. Updated ${updatedCount} fields in ${slice.length} topics and their posts.`);
+    } catch (err) {
+        console.error('Migration failed:', err);
+    } finally {
+        redis.disconnect();
+    }
 }
 
 migrateAnonymousFields();
+
 
 
