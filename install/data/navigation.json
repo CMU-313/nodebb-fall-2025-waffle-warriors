@@ -66,6 +66,14 @@
 		"text": "[[global:header.groups]]"
 	},
 	{
+		"route": "/polls",
+		"title": "[[global:header.polls]]",
+		"enabled": true,
+		"iconClass": "fa-bar-chart",
+		"textClass": "d-lg-none",
+		"text": "[[global:header.polls]]"
+	},
+	{
 		"route": "/admin",
 		"title": "[[global:header.admin]]",
 		"enabled": true,

@@ -42,4 +42,13 @@ module.exports = function (app, middleware, controllers) {
 		middleware.canViewUsers,
 		middleware.checkAccountPermissions,
 	], helpers.tryRoute(controllers.accounts.edit.uploadPicture));
+
+	// Poll API routes
+	const pollsApiController = require('../controllers/api/polls');
+	router.get('/polls/create', [...middlewares], helpers.tryRoute(pollsApiController.getCreatePage));
+	router.get('/polls/:poll_id', [...middlewares], helpers.tryRoute(pollsApiController.get));
+	router.post('/polls', [...middlewares, middleware.ensureLoggedIn, middleware.applyCSRF], helpers.tryRoute(pollsApiController.create));
+	router.put('/polls/:poll_id', [...middlewares, middleware.ensureLoggedIn, middleware.applyCSRF], helpers.tryRoute(pollsApiController.update));
+	router.post('/polls/:poll_id/vote', [...middlewares, middleware.ensureLoggedIn, middleware.applyCSRF], helpers.tryRoute(pollsApiController.vote));
+	router.delete('/polls/:poll_id', [...middlewares, middleware.ensureLoggedIn, middleware.applyCSRF], helpers.tryRoute(pollsApiController.delete));
 };

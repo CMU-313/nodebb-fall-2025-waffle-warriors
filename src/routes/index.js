@@ -45,6 +45,14 @@ _mounts.main = (app, middleware, controllers) => {
 	app.post('/compose', middleware.applyCSRF, controllers.composer.post);
 };
 
+_mounts.polls = (app, middleware, controllers) => {
+	setupPageRoute(app, '/polls', [], controllers.polls.list);
+	setupPageRoute(app, '/polls/create', [middleware.ensureLoggedIn], controllers.polls.create);
+	app.post('/polls/create', [middleware.ensureLoggedIn, middleware.applyCSRF], controllers.polls.createPost);
+	setupPageRoute(app, '/polls/:poll_id', [], controllers.polls.get);
+	setupPageRoute(app, '/polls/:poll_id/edit', [middleware.ensureLoggedIn], controllers.polls.edit);
+};
+
 _mounts.mod = (app, middleware, controllers) => {
 	setupPageRoute(app, '/flags', [], controllers.mods.flags.list);
 	setupPageRoute(app, '/flags/:flagId', [], controllers.mods.flags.detail);
@@ -158,6 +166,7 @@ function addCoreRoutes(app, router, middleware, mounts) {
 
 	_mounts.activitypub(router, middleware, controllers);
 	_mounts.main(router, middleware, controllers);
+	_mounts.polls(router, middleware, controllers);
 	_mounts.mod(router, middleware, controllers);
 	_mounts.globalMod(router, middleware, controllers);
 	_mounts['well-known'](router, middleware, controllers);
