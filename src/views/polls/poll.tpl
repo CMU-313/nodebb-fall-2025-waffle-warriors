@@ -58,6 +58,12 @@
 						<span class="fw-medium">{./text}</span>
 						<span class="text-muted small">{./votes} votes</span>
 					</div>
+					<div class="progress" style="height: 20px;">
+						<div class="progress-bar bg-primary" role="progressbar" style="width: {./percentage}%"
+							 aria-valuenow="{./percentage}" aria-valuemin="0" aria-valuemax="100">
+							{./percentage}%
+						</div>
+					</div>
 				</div>
 				{{{ end }}}
 				{{{ end }}}
