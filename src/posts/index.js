@@ -7,6 +7,7 @@ const utils = require('../utils');
 const user = require('../user');
 const privileges = require('../privileges');
 const plugins = require('../plugins');
+const Topics = require('../topics');
 
 const Posts = module.exports;
 
@@ -33,6 +34,63 @@ Posts.exists = async function (pids) {
 	return await db.exists(
 		Array.isArray(pids) ? pids.map(pid => `post:${pid}`) : `post:${pids}`
 	);
+};
+
+// Code written by Gemini AI
+Posts.anonymizeUserObject = function (userObject, name = 'anon_person') {
+	if (!userObject) {
+		return null;
+	}
+	// Create a copy to prevent caching issues
+	const anonUser = { ...userObject };
+	anonUser.username = name;
+	anonUser.userslug = name;
+	anonUser.displayname = name;
+	anonUser.reputation = 0;
+	anonUser.postcount = 0;
+	anonUser.picture = '/images/anonymous.png';
+	anonUser['icon:text'] = '?';
+	anonUser['icon:bgColor'] = '#666';
+	return anonUser;
+};
+
+// Code written by Gemini AI
+Posts.enforceAnonymity = async function (posts) {
+	if (!Array.isArray(posts) || !posts.length) {
+		return posts;
+	}
+	const tids = [...new Set(posts.map(post => post && post.tid).filter(Boolean))];
+	if (!tids.length) {
+		return posts;
+	}
+	const topicsData = await Topics.getTopicsFields(tids, ['tid', 'is_anonymous']);
+	const topicIsAnonymousMap = new Map(topicsData.map(t => [t.tid, t.is_anonymous]));
+
+	const topicUserAnonMap = new Map();
+
+	posts.forEach((post) => {
+		const isTopicAnonymous = topicIsAnonymousMap.get(post.tid);
+		if (post && post.user && (isTopicAnonymous === true || isTopicAnonymous === 'true')) {
+			if (!topicUserAnonMap.has(post.tid)) {
+				topicUserAnonMap.set(post.tid, new Map());
+			}
+			const userMap = topicUserAnonMap.get(post.tid);
+
+			let anonName;
+			if (userMap.has(post.uid)) {
+				anonName = userMap.get(post.uid);
+			} else {
+				// This is a new user for this topic, so assign them a new name
+				const userIndex = userMap.size;
+				anonName = userIndex === 0 ? 'anon_person' : `anon_person_${userIndex}`;
+				userMap.set(post.uid, anonName);
+			}
+			post.user = Posts.anonymizeUserObject(post.user, anonName);
+			post.is_anonymous = true;
+		}
+	});
+
+	return posts;
 };
 
 Posts.getPidsFromSet = async function (set, start, stop, reverse) {
