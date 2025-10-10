@@ -329,6 +329,15 @@ describe('API', async () => {
 			},
 		});
 
+		// Create a test poll for API testing
+		const polls = require('../src/polls');
+		await polls.create({
+			title: 'Test Poll',
+			description: 'A test poll for API testing',
+			options: ['Option 1', 'Option 2'],
+			uid: adminUid,
+		});
+
 		setup = true;
 	}
 
