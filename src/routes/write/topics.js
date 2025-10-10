@@ -35,7 +35,7 @@ module.exports = function () {
 
 	console.log('Setting up answered routes, controllers exist:', {
 		markAnswered: typeof controllers.write.topics.markAnswered,
-		unmarkAnswered: typeof controllers.write.topics.unmarkAnswered
+		unmarkAnswered: typeof controllers.write.topics.unmarkAnswered,
 	});
 
 

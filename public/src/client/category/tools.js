@@ -160,28 +160,6 @@ define('forum/category/tools', [
 		});
 		  
 
-		// components.get('topic/mark-answered').on('click', function () {
-		// 	categoryCommand('put', '/answered', 'mark-answered', function () {
-		// 		// reflect in UI for selected rows
-		// 		const tids = topicSelect.getSelectedTids();
-		// 		tids.forEach(tid => getTopicEl(tid).addClass('answered').data('answered', 1));
-		// 		onCommandComplete();
-		// 		updateDropdownOptions();
-		// 	});
-		// 	return false;
-		// });
-		
-		// components.get('topic/unmark-answered').on('click', function () {
-		// 	categoryCommand('del', '/answered', 'unmark-answered', function () {
-		// 		const tids = topicSelect.getSelectedTids();
-		// 		tids.forEach(tid => getTopicEl(tid).removeClass('answered').data('answered', 0));
-		// 		onCommandComplete();
-		// 		updateDropdownOptions();
-		// 	});
-		// 	return false;
-		// });
-		  
-
 		CategoryTools.removeListeners();
 		socket.on('event:topic_deleted', setDeleteState);
 		socket.on('event:topic_restored', setDeleteState);
