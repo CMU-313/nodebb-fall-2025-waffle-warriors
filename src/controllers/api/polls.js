@@ -44,6 +44,62 @@ apiController.create = async function (req, res) {
 	}
 };
 
+apiController.getCreatePage = async function (req, res) {
+	try {
+		// Return Ajaxify-compatible data for poll creation page
+		res.json({
+			title: 'Create Poll',
+			url: `/polls/create`,
+			bodyClass: 'page-polls template-polls-create page-status-200 theme-harmony user-guest',
+			breadcrumbs: [
+				{
+					text: '[[global:home]]',
+					url: '/',
+				},
+				{
+					text: '[[polls:title]]',
+					url: '/polls',
+				},
+				{
+					text: '[[polls:create]]',
+				},
+			],
+			template: {
+				name: 'polls/create',
+				polls: true,
+			},
+			_header: {
+				tags: {
+					meta: [
+						{
+							name: 'viewport',
+							content: 'width=device-width, initial-scale=1.0',
+						},
+						{
+							'content-type': 'text/html; charset=UTF-8',
+							name: 'content-type',
+						},
+					],
+					link: [
+						{
+							rel: 'icon',
+							type: 'image/x-icon',
+							href: '/assets/uploads/system/favicon.ico',
+						},
+					],
+				},
+			},
+			widgets: {
+				header: [],
+				footer: [],
+				sidebar: [],
+			},
+		});
+	} catch (err) {
+		helpers.formatApiResponse(500, res, err);
+	}
+};
+
 apiController.vote = async function (req, res) {
 	console.log('Vote request received for pollId:', req.params.poll_id, 'uid:', req.uid);
 	if (!req.uid) {

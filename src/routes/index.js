@@ -48,6 +48,7 @@ _mounts.main = (app, middleware, controllers) => {
 _mounts.polls = (app, middleware, controllers) => {
 	setupPageRoute(app, '/polls', [], controllers.polls.list);
 	setupPageRoute(app, '/polls/create', [middleware.ensureLoggedIn], controllers.polls.create);
+	app.post('/polls/create', [middleware.ensureLoggedIn, middleware.applyCSRF], controllers.polls.createPost);
 	setupPageRoute(app, '/polls/:poll_id', [], controllers.polls.get);
 	setupPageRoute(app, '/polls/:poll_id/edit', [middleware.ensureLoggedIn], controllers.polls.edit);
 };

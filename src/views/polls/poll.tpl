@@ -30,49 +30,49 @@
 				<p class="text-muted mb-4">{poll.description}</p>
 				{{{ end }}}
 
-				<div class="poll-options" data-poll-id="{poll.pollId}">
-					{{{ if poll.canVote }}}
-					<form id="poll-vote-form">
-						{{{ each poll.options }}}
-						<div class="form-check mb-3">
-							<input class="form-check-input" type="{{{ if ../poll.multipleChoice }}}checkbox{{{ else }}}radio{{{ end }}}" 
-								   name="poll-option" id="option-{./optionId}" value="{./optionId}">
-							<label class="form-check-label w-100" for="option-{./optionId}">
-								<div class="d-flex justify-content-between align-items-center">
-									<span>{./text}</span>
-									<span class="text-muted small">{./votes} votes</span>
-								</div>
-							</label>
-						</div>
-						{{{ end }}}
-						<button type="submit" class="btn btn-primary">
-							<i class="fa fa-check"></i> Submit Vote
-						</button>
-					</form>
-					{{{ else }}}
-					<!-- Results view -->
+				{{{ if poll.canVote }}}
+				<form id="poll-vote-form">
+					<div class="poll-options mb-3" data-poll-id="{poll.pollId}">
 					{{{ each poll.options }}}
-					<div class="poll-option-result mb-3">
-						<div class="d-flex justify-content-between align-items-center mb-1">
-							<span class="fw-medium">{./text}</span>
-							<span class="text-muted small">{./votes} votes ({./percentage}%)</span>
-						</div>
-						<div class="progress" style="height: 20px;">
-							<div class="progress-bar" role="progressbar" style="width: {./percentage}%" 
-								 aria-valuenow="{./percentage}" aria-valuemin="0" aria-valuemax="100">
-								{./percentage}%
+					<div class="form-check mb-3">
+						<input class="form-check-input" type="radio"
+							   name="poll-option" id="option-{./optionId}" value="{./optionId}">
+						<label class="form-check-label w-100" for="option-{./optionId}">
+							<div class="d-flex justify-content-between align-items-center">
+								<span>{./text}</span>
+								<span class="text-muted small">{./votes} votes</span>
 							</div>
-						</div>
+						</label>
 					</div>
 					{{{ end }}}
-					{{{ end }}}
+					</div>
+					<button type="submit" class="btn btn-primary">
+						<i class="fa fa-check"></i> Submit Vote
+					</button>
+				</form>
+				{{{ else }}}
+				<!-- Results view -->
+				{{{ each poll.options }}}
+				<div class="poll-option-result mb-3">
+					<div class="d-flex justify-content-between align-items-center mb-1">
+						<span class="fw-medium">{./text}</span>
+						<span class="text-muted small">{./votes} votes ({./percentage}%)</span>
+					</div>
+					<div class="progress" style="height: 20px;">
+						<div class="progress-bar" role="progressbar" style="width: {./percentage}%"
+							 aria-valuenow="{./percentage}" aria-valuemin="0" aria-valuemax="100">
+							{./percentage}%
+						</div>
+					</div>
 				</div>
+				{{{ end }}}
+				{{{ end }}}
 
 				<div class="poll-meta mt-4 pt-3 border-top">
 					<div class="row text-muted small">
 						<div class="col-md-6">
 							<div class="mb-2">
-								<i class="fa fa-chart-bar"></i> Total votes: <strong>{poll.totalVotes}</strong>
+								<i class="fa fa-chart-bar"></i> Total votes: <strong class="total-votes">{poll.totalVotes}</strong>
 							</div>
 							<div class="mb-2">
 								<i class="fa fa-user"></i> Created by: <strong>{poll.user.username}</strong>
@@ -148,24 +148,43 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+// Immediately attach form handler
+(function() {
+	console.log('Poll script executing');
 	const form = document.getElementById('poll-vote-form');
-	if (form) {
+
+	if (!form) {
+		console.log('poll-vote-form not found, retrying...');
+		// Retry after a short delay in case DOM isn't ready
+		setTimeout(function() {
+			const retryForm = document.getElementById('poll-vote-form');
+			if (retryForm) initForm(retryForm);
+		}, 100);
+	} else {
+		initForm(form);
+	}
+
+	function initForm(form) {
+		console.log('Poll page loaded, initializing form');
+
+		console.log('Found poll-vote-form, attaching submit handler');
 		form.addEventListener('submit', function(e) {
+			console.log('Form submitted, preventing default');
 			e.preventDefault();
 
 			const formData = new FormData(form);
 			const options = formData.getAll('poll-option');
+			console.log('Selected options:', options);
 
 			if (options.length === 0) {
-				app.require(['alerts'], function(alerts) {
-					alerts.error('Please select at least one option');
-				});
+				console.log('No options selected');
 				return;
 			}
 
 			const pollId = document.querySelector('.poll-options').dataset.pollId;
+			console.log('Poll ID:', pollId);
 
+			console.log('Sending POST request to:', config.relative_path + '/api/polls/' + pollId + '/vote');
 			fetch(config.relative_path + '/api/polls/' + pollId + '/vote', {
 				method: 'POST',
 				headers: {
@@ -174,23 +193,21 @@ document.addEventListener('DOMContentLoaded', function() {
 				},
 				body: JSON.stringify({ options: options })
 			})
-			.then(response => response.json())
-			.then(data => {
-				if (data.status && data.status.code === 'ok') {
+			.then(response => {
+				console.log('Response received, status:', response.status);
+				if (response.status === 200) {
+					console.log('Vote recorded successfully (status 200), forcing results view');
 					location.reload();
 				} else {
-					app.require(['alerts'], function(alerts) {
-						alerts.error(data.status && data.status.message ? data.status.message : 'Error submitting vote');
+					return response.json().then(data => {
+						console.log('Vote failed with status', response.status, '- data:', data);
 					});
 				}
 			})
 			.catch(error => {
-				app.require(['alerts'], function(alerts) {
-					alerts.error('Error submitting vote');
-				});
-				console.error('Error:', error);
+				console.log('Network or parse error:', error);
 			});
 		});
 	}
-});
+})();
 </script>

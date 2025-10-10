@@ -133,102 +133,138 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+// Immediately attach form handler
+(function() {
+	console.log('Poll create script executing');
 	const form = document.getElementById('poll-create-form');
-	const optionsContainer = document.getElementById('poll-options');
-	const addOptionBtn = document.getElementById('add-option');
-	let optionCount = 2;
 
-	// Add option functionality
-	addOptionBtn.addEventListener('click', function() {
-		if (optionCount >= 10) {
-			app.alertError('Maximum 10 options allowed');
-			return;
-		}
-
-		optionCount++;
-		const optionDiv = document.createElement('div');
-		optionDiv.className = 'input-group mb-2';
-		optionDiv.innerHTML = `
-			<input type="text" class="form-control poll-option" name="options[]" 
-				   placeholder="Option ${optionCount}" required maxlength="255">
-			<button type="button" class="btn btn-outline-danger remove-option">
-				<i class="fa fa-times"></i>
-			</button>
-		`;
-		optionsContainer.appendChild(optionDiv);
-		updateRemoveButtons();
-	});
-
-	// Remove option functionality
-	optionsContainer.addEventListener('click', function(e) {
-		if (e.target.closest('.remove-option')) {
-			const optionDiv = e.target.closest('.input-group');
-			optionDiv.remove();
-			optionCount--;
-			updateRemoveButtons();
-			updatePlaceholders();
-		}
-	});
-
-	function updateRemoveButtons() {
-		const removeButtons = optionsContainer.querySelectorAll('.remove-option');
-		removeButtons.forEach((btn, index) => {
-			btn.disabled = removeButtons.length <= 2;
-		});
+	if (!form) {
+		console.log('poll-create-form not found, retrying...');
+		// Retry after a short delay in case DOM isn't ready
+		setTimeout(function() {
+			const retryForm = document.getElementById('poll-create-form');
+			if (retryForm) initForm(retryForm);
+		}, 100);
+	} else {
+		initForm(form);
 	}
 
-	function updatePlaceholders() {
-		const inputs = optionsContainer.querySelectorAll('.poll-option');
-		inputs.forEach((input, index) => {
-			input.placeholder = `Option ${index + 1}`;
-		});
-	}
+	function initForm(form) {
+		console.log('Poll create page loaded, initializing form');
+		const optionsContainer = document.getElementById('poll-options');
+		const addOptionBtn = document.getElementById('add-option');
+		let optionCount = 2;
 
-	// Form submission
-	form.addEventListener('submit', function(e) {
-		e.preventDefault();
+		console.log('Found poll-create-form');
 
-		const formData = new FormData(form);
-		const options = formData.getAll('options[]').filter(option => option.trim());
-
-		if (options.length < 2) {
-			app.alertError('Please provide at least 2 options');
-			return;
-		}
-
-		const data = {
-			title: formData.get('title'),
-			description: formData.get('description'),
-			options: options,
-			multipleChoice: formData.get('multipleChoice') === 'on',
-			anonymous: formData.get('anonymous') === 'on',
-			endTime: formData.get('endTime') ? new Date(formData.get('endTime')).getTime() : 0
-		};
-
-		fetch(config.relative_path + '/api/polls', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRF-Token': config.csrf_token
-			},
-			body: JSON.stringify(data)
-		})
-		.then(response => response.json())
-		.then(data => {
-			if (data.status.code === 'ok') {
-				app.alertSuccess('Poll created successfully!');
-				setTimeout(() => {
-					window.location.href = config.relative_path + '/polls';
-				}, 1000);
-			} else {
-				app.alertError(data.status.message);
+		// Add option functionality
+		addOptionBtn.addEventListener('click', function() {
+			console.log('Adding new option');
+			if (optionCount >= 10) {
+				alert('Maximum 10 options allowed');
+				return;
 			}
-		})
-		.catch(error => {
-			app.alertError('Error creating poll');
-			console.error('Error:', error);
+
+			optionCount++;
+			const optionDiv = document.createElement('div');
+			optionDiv.className = 'input-group mb-2';
+			optionDiv.innerHTML = `
+				<input type="text" class="form-control poll-option" name="options[]"
+					   placeholder="Option ${optionCount}" required maxlength="255">
+				<button type="button" class="btn btn-outline-danger remove-option">
+					<i class="fa fa-times"></i>
+				</button>
+			`;
+			optionsContainer.appendChild(optionDiv);
+			updateRemoveButtons();
 		});
-	});
-});
+
+		// Remove option functionality
+		optionsContainer.addEventListener('click', function(e) {
+			if (e.target.closest('.remove-option')) {
+				console.log('Removing option');
+				const optionDiv = e.target.closest('.input-group');
+				optionDiv.remove();
+				optionCount--;
+				updateRemoveButtons();
+				updatePlaceholders();
+			}
+		});
+
+		function updateRemoveButtons() {
+			const removeButtons = optionsContainer.querySelectorAll('.remove-option');
+			removeButtons.forEach((btn, index) => {
+				btn.disabled = removeButtons.length <= 2;
+			});
+		}
+
+		function updatePlaceholders() {
+			const inputs = optionsContainer.querySelectorAll('.poll-option');
+			inputs.forEach((input, index) => {
+				input.placeholder = `Option ${index + 1}`;
+			});
+		}
+
+		// Form submission
+		form.addEventListener('submit', function(e) {
+			console.log('Poll create form submitted');
+			e.preventDefault();
+
+			const formData = new FormData(form);
+			const options = formData.getAll('options[]').filter(option => option.trim());
+			console.log('Filtered options:', options);
+
+			if (options.length < 2) {
+				console.log('Not enough options');
+				alert('Please provide at least 2 options');
+				return;
+			}
+
+			if (!formData.get('title') || !formData.get('title').trim()) {
+				console.log('No title');
+				alert('Please provide a title');
+				return;
+			}
+
+			const data = {
+				title: formData.get('title'),
+				description: formData.get('description'),
+				options: options,
+				multipleChoice: formData.get('multipleChoice') === 'on',
+				anonymous: formData.get('anonymous') === 'on',
+				endTime: formData.get('endTime') ? new Date(formData.get('endTime')).getTime() : 0
+			};
+
+			console.log('Sending data:', data);
+			console.log('CSRF token:', config.csrf_token);
+
+			fetch(config.relative_path + '/api/polls', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-CSRF-Token': config.csrf_token
+				},
+				body: JSON.stringify(data)
+			})
+			.then(response => {
+				console.log('Response status:', response.status);
+				return response.json();
+			})
+			.then(data => {
+				console.log('Response data:', data);
+				if (data.status.code === 'ok') {
+					console.log('Poll created successfully - redirecting');
+					window.location.href = config.relative_path + '/polls';
+				} else {
+					console.log('Poll creation failed:', data.status.message);
+					alert('Error: ' + (data.status.message || 'Failed to create poll'));
+				}
+			})
+			.catch(error => {
+				console.log('Network error:', error);
+				alert('Error creating poll');
+			});
+		});
+	}
+})();
 </script>
