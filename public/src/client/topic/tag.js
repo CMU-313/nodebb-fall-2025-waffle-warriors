@@ -86,12 +86,23 @@ define('forum/topic/tag', [
 	}
 
 	async function tagTopics() {
+		const newTags = tagModal.find('.tags').first().tagsinput('items');
+		const invalidTag = newTags.find(tag => /anon/i.test(tag) && tag !== 'anonymous');
+		if (invalidTag) {
+			return alerts.error(`Invalid tag variation used. Only the exact lowercase "anonymous" tag is permitted.`);
+		}
+		if (newTags.includes('anonymous') && !app.user.isAdmin) {
+			return alerts.error('[[error:no-privileges]]');
+		}
+
 		await Promise.all(tagModal.find('.tags').map(async (index, el) => {
 			const topic = topics[index];
 			const tagEl = $(el);
 			topic.tags = await api.put(`/topics/${topic.tid}/tags`, { tags: tagEl.tagsinput('items') });
 			Tag.updateTopicTags([topic]);
 		}));
+		
+		ajaxify.refresh();
 		closeTagModal();
 	}
 

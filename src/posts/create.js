@@ -29,6 +29,7 @@ module.exports = function (Posts) {
 
 		const pid = data.pid || await db.incrObjectField('global', 'nextPid');
 		let postData = { pid, uid, tid, content, sourceContent, timestamp };
+		postData.is_anonymous = !!data.is_anonymous;
 
 		if (data.toPid) {
 			postData.toPid = data.toPid;
@@ -113,3 +114,5 @@ module.exports = function (Posts) {
 		}
 	}
 };
+
+

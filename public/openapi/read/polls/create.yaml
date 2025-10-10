@@ -1,0 +1,18 @@
+get:
+  tags:
+    - polls
+  summary: Create poll page
+  description: Display the create poll form
+  responses:
+    "200":
+      description: "Create poll form displayed successfully"
+      content:
+        text/html:
+          schema:
+            type: string
+    "500":
+      description: "Internal server error"
+      content:
+        text/html:
+          schema:
+            type: string

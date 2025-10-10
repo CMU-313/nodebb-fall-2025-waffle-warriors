@@ -416,6 +416,14 @@ module.exports = function (Topics) {
 
 		tags = await Topics.filterTags(tags, cid);
 		await Topics.addTags(tags, [tid]);
+		const isNowAnonymous = tags.includes('anonymous');
+		await Topics.setTopicField(tid, 'is_anonymous', isNowAnonymous);
+		const pids = await Topics.getPids(tid);
+
+		if (pids.length) {
+			const keys = pids.map(pid => `post:${pid}`);
+			await db.setObjectField(keys, 'is_anonymous', isNowAnonymous);
+		}
 		plugins.hooks.fire('action:topic.updateTags', { tags, tid });
 	};
 

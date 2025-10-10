@@ -76,6 +76,8 @@ PostObject:
     topic:
       type: object
       properties:
+        allow_anonymous:
+          type: boolean
         uid:
           type: number
           description: A user identifier
@@ -163,6 +165,8 @@ PostDataObject:
   allOf:
     - type: object
       properties:
+        is_anonymous:
+          type: boolean
         pid:
           type: number
         uid:
