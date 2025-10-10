@@ -153,17 +153,19 @@ document.addEventListener('DOMContentLoaded', function() {
 	if (form) {
 		form.addEventListener('submit', function(e) {
 			e.preventDefault();
-			
+
 			const formData = new FormData(form);
 			const options = formData.getAll('poll-option');
-			
+
 			if (options.length === 0) {
-				app.alertError('Please select at least one option');
+				app.require(['alerts'], function(alerts) {
+					alerts.error('Please select at least one option');
+				});
 				return;
 			}
-			
+
 			const pollId = document.querySelector('.poll-options').dataset.pollId;
-			
+
 			fetch(config.relative_path + '/api/polls/' + pollId + '/vote', {
 				method: 'POST',
 				headers: {
@@ -174,14 +176,18 @@ document.addEventListener('DOMContentLoaded', function() {
 			})
 			.then(response => response.json())
 			.then(data => {
-				if (data.status.code === 'ok') {
+				if (data.status && data.status.code === 'ok') {
 					location.reload();
 				} else {
-					app.alertError(data.status.message);
+					app.require(['alerts'], function(alerts) {
+						alerts.error(data.status && data.status.message ? data.status.message : 'Error submitting vote');
+					});
 				}
 			})
 			.catch(error => {
-				app.alertError('Error submitting vote');
+				app.require(['alerts'], function(alerts) {
+					alerts.error('Error submitting vote');
+				});
 				console.error('Error:', error);
 			});
 		});
