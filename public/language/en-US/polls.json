@@ -1,0 +1,11 @@
+{
+    "title": "Polls",
+    "create": "Create Poll",
+    "no-polls": "No polls have been created yet.",
+    "no-votes": "No votes yet",
+    "one-vote": "1 vote",
+    "votes": "%d votes",
+    "option": "Option",
+    "results": "Results",
+    "vote": "Vote"
+}
