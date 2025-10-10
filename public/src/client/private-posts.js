@@ -122,7 +122,7 @@ function setupFormSubmissionHandler() {
 	// 2. Intercept fetch requests (modern approach) - NodeBB uses fetch for API calls
 	if (typeof fetch !== 'undefined') {
 		const originalFetch = window.fetch;
-		window.fetch = function(url, options) {
+		window.fetch = function (url, options) {
 			if (url && url.includes('/topics') && options && options.method === 'POST') {
 				const checkbox = $('#privatePostCheckbox');
 				if (checkbox.length && checkbox.is(':checked')) {
@@ -142,7 +142,7 @@ function setupFormSubmissionHandler() {
 
 	// 3. Monitor XMLHttpRequest for fallback
 	const originalXHRSend = XMLHttpRequest.prototype.send;
-	XMLHttpRequest.prototype.send = function(data) {
+	XMLHttpRequest.prototype.send = function (data) {
 		if (this._url && this._url.includes('/topics') && this._method === 'POST') {
 			const checkbox = $('#privatePostCheckbox');
 			if (checkbox.length && checkbox.is(':checked')) {
@@ -164,7 +164,7 @@ function setupFormSubmissionHandler() {
 
 	// 4. Composer submit button click handler as additional fallback
 	$(document).off('click.privatePost', '[component="composer/submit"], .composer-submit, [data-action="post"]');
-	$(document).on('click.privatePost', '[component="composer/submit"], .composer-submit, [data-action="post"]', function (e) {
+	$(document).on('click.privatePost', '[component="composer/submit"], .composer-submit, [data-action="post"]', function () {
 		const checkbox = $('#privatePostCheckbox');
 		if (checkbox.length && checkbox.is(':checked')) {
 			console.log('🔍 CLIENT CLICK: Private post checkbox checked, ensuring isPrivate field is included');
@@ -182,7 +182,7 @@ function setupFormSubmissionHandler() {
 
 	// 5. Form submit interception
 	$(document).off('submit.privatePost', 'form');
-	$(document).on('submit.privatePost', 'form', function (e) {
+	$(document).on('submit.privatePost', 'form', function () {
 		const checkbox = $('#privatePostCheckbox');
 		if (checkbox.length && checkbox.is(':checked')) {
 			// Add hidden field to ensure isPrivate is included
