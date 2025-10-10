@@ -688,6 +688,37 @@ describe('Topic\'s', () => {
 			assert(!isLocked);
 		});
 
+		it('should mark topic answered', async () => {
+			if (typeof apiTopics.answered === 'function') {
+				await apiTopics.answered({ uid: adminUid }, { tids: [newTopic.tid], cid: categoryObj.cid });
+			} else {
+				const adminApiOpts = { jar: adminJar, headers: { 'x-csrf-token': csrf_token } };
+				await request.put(`${nconf.get('url')}/api/v3/topics/${newTopic.tid}/answered`, adminApiOpts);
+			}
+		
+			const answered = await topics.getTopicField(newTopic.tid, 'answered');
+			assert.strictEqual(Number(answered), 1);
+		
+			const ts = await topics.getTopicField(newTopic.tid, 'answeredTimestamp');
+			if (ts !== null && ts !== undefined) {
+				assert(ts > 0);
+			}
+		});
+		
+		it('should mark topic unanswered', async () => {
+			if (typeof apiTopics.unanswered === 'function') {
+				await apiTopics.unanswered({ uid: adminUid }, { tids: [newTopic.tid], cid: categoryObj.cid });
+			} else {
+				const adminApiOpts = { jar: adminJar, headers: { 'x-csrf-token': csrf_token } };
+				await request.delete(`${nconf.get('url')}/api/v3/topics/${newTopic.tid}/answered`, adminApiOpts);
+			}
+		
+			const answered = await topics.getTopicField(newTopic.tid, 'answered');
+			assert.strictEqual(Number(answered), 0);
+		});
+		
+
+
 		it('should pin topic', async () => {
 			await apiTopics.pin({ uid: adminUid }, { tids: [newTopic.tid], cid: categoryObj.cid });
 			const pinned = await topics.getTopicField(newTopic.tid, 'pinned');

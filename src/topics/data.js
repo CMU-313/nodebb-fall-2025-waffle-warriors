@@ -127,6 +127,10 @@ function modifyTopic(topic, fields) {
 	if (fields.includes('teaserPid') || !fields.length) {
 		topic.teaserPid = topic.teaserPid || null;
 	}
+	
+	if (topic.hasOwnProperty('is_anonymous')) {
+		topic.is_anonymous = topic.is_anonymous === true || topic.is_anonymous === 'true';
+	}
 
 	if (fields.includes('tags') || !fields.length) {
 		const tags = String(topic.tags || '');

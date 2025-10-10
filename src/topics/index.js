@@ -70,6 +70,12 @@ Topics.getTopicsByTids = async function (tids, options) {
 
 	async function loadTopics() {
 		const topics = await Topics.getTopicsData(tids);
+		// Normalize is_anonymous to boolean
+		topics.forEach((t) => {
+			if (t && typeof t.is_anonymous !== 'undefined') {
+				t.is_anonymous = t.is_anonymous === true || t.is_anonymous === 'true';
+			}
+		});
 		const uids = _.uniq(topics
 			.map(t => t && t.uid && t.uid.toString())
 			.filter(v => utils.isNumber(v) || activitypub.helpers.isUri(v)));
@@ -127,18 +133,26 @@ Topics.getTopicsByTids = async function (tids, options) {
 		Topics.getUserBookmarks(tids, uid),
 		user.getSettings(uid),
 	]);
-
+	
 	const sortNewToOld = callerSettings.topicPostSort === 'newest_to_oldest';
 	result.topics.forEach((topic, i) => {
 		if (topic) {
 			topic.thumbs = result.thumbs[i];
 			topic.category = result.categoriesMap[topic.cid];
-			topic.user = topic.uid ? result.usersMap[topic.uid] : { ...result.usersMap[topic.uid] };
+			topic.user = result.usersMap[topic.uid] || {};
 			if (result.tidToGuestHandle[topic.tid]) {
 				topic.user.username = validator.escape(result.tidToGuestHandle[topic.tid]);
 				topic.user.displayname = topic.user.username;
 			}
 			topic.teaser = result.teasers[i] || null;
+
+			if (topic.is_anonymous === true || topic.is_anonymous === 'true') {
+				topic.user = posts.anonymizeUserObject(topic.user);
+				if (topic.teaser) {
+					topic.teaser.user = posts.anonymizeUserObject(topic.teaser.user);
+				}
+			}
+
 			topic.isOwner = topic.uid === parseInt(uid, 10);
 			topic.ignored = followData[i].ignoring;
 			topic.followed = followData[i].following;
@@ -159,8 +173,11 @@ Topics.getTopicsByTids = async function (tids, options) {
 };
 
 Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, reverse) {
+	if (topicData && typeof topicData.is_anonymous !== 'undefined') {
+		topicData.is_anonymous = (topicData.is_anonymous === true || topicData.is_anonymous === 'true');
+	}
 	const [
-		posts,
+		postData,
 		category,
 		tagWhitelist,
 		threadTools,
@@ -188,9 +205,9 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
 		Topics.thumbs.load([topicData]),
 		Topics.events.get(topicData.tid, uid, reverse),
 	]);
-
+	const anonymizedPosts = await posts.enforceAnonymity(postData);
 	topicData.thumbs = thumbs[0];
-	topicData.posts = posts;
+	topicData.posts = anonymizedPosts;
 	topicData.posts.forEach((p) => {
 		p.events = events.filter(
 			event => event.timestamp >= p.eventStart && event.timestamp < p.eventEnd

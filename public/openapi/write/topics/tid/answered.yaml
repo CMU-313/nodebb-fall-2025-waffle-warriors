@@ -1,0 +1,45 @@
+put:
+  tags: [topics]
+  summary: Mark topic as answered
+  parameters:
+    - in: path
+      name: tid
+      required: true
+      schema:
+        type: integer
+      example: 2
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true
+    '403':
+      description: Forbidden
+    '404':
+      description: Not Found
+
+delete:
+  tags: [topics]
+  summary: Unmark topic as answered
+  parameters:
+    - in: path
+      name: tid
+      required: true
+      schema:
+        type: integer
+      example: 2
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true
+    '403':
+      description: Forbidden
+    '404':
+      description: Not Found

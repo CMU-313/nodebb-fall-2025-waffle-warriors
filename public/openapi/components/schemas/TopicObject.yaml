@@ -3,6 +3,9 @@ TopicObject:
     - $ref: '#/TopicObjectSlim'
     - type: object
       properties:
+        is_anonymous:
+          type: boolean
+          description: Whether or not this topic is anonymous
         lastposttime:
           type: number
         category:
@@ -196,6 +199,9 @@ TopicObjectSlim:
   allOf:
     - type: object
       properties:
+        is_anonymous:
+          type: boolean
+          description: Whether or not this topic is anonymous
         tid:
           type: number
           description: A topic identifier

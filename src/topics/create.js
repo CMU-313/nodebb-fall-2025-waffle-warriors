@@ -16,6 +16,7 @@ const posts = require('../posts');
 const privileges = require('../privileges');
 const categories = require('../categories');
 const translator = require('../translator');
+const groups = require('../groups');
 
 module.exports = function (Topics) {
 	Topics.create = async function (data) {
@@ -35,7 +36,8 @@ module.exports = function (Topics) {
 			lastposttime: 0,
 			postcount: 0,
 			viewcount: 0,
-			isPrivate: data.isPrivate ? 1 : 0,
+isPrivate: data.isPrivate ? 1 : 0,
+			is_anonymous: false,
 		};
 		
 		
@@ -45,6 +47,10 @@ module.exports = function (Topics) {
 		
 		if (Array.isArray(data.tags) && data.tags.length) {
 			topicData.tags = data.tags.join(',');
+			topicData.is_anonymous = false;
+			if (data.tags.includes('anonymous')) {
+				topicData.is_anonymous = true;
+			}
 		}
 
 		const result = await plugins.hooks.fire('filter:topic.create', { topic: topicData, data: data });
@@ -129,6 +135,18 @@ module.exports = function (Topics) {
 			throw new Error('[[error:no-privileges]]');
 		}
 
+		const invalidTag = data.tags.find(tag => /anon/i.test(tag) && tag !== 'anonymous');
+		if (invalidTag) {
+			throw new Error(`[[error:invalid-tag, ${invalidTag}]]`);
+		}
+
+		if (Array.isArray(data.tags) && data.tags.includes('anonymous')) {
+			const isPrivileged = await groups.isMember(data.uid, 'administrators');
+			if (!isPrivileged) {
+				throw new Error('[[error:no-privileges]]');
+			}
+		}
+
 		await guestHandleValid(data);
 		if (!data.fromQueue) {
 			await user.isReadyToPost(uid, data.cid);
@@ -140,6 +158,11 @@ module.exports = function (Topics) {
 		postData.tid = tid;
 		postData.ip = data.req ? data.req.ip : null;
 		postData.isMain = true;
+
+		if (Array.isArray(data.tags) && data.tags.includes('anonymous')) {
+			postData.is_anonymous = true;
+		}
+
 		postData = await posts.create(postData);
 		postData = await onNewPost(postData, data);
 
@@ -202,6 +225,10 @@ module.exports = function (Topics) {
 		await canReply(data, topicData);
 
 		data.cid = topicData.cid;
+
+		if (topicData.is_anonymous) {
+			data.is_anonymous = true;
+		}
 
 		await guestHandleValid(data);
 		data.content = String(data.content || '').trimEnd();
