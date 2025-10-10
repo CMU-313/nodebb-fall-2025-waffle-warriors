@@ -90,7 +90,7 @@ pollsController.createPost = async function (req, res) {
 			uid: req.uid,
 			multipleChoice: req.body.multipleChoice === 'on',
 			anonymous: req.body.anonymous === 'on',
-			endTime: req.body.endTime ? new Date(req.body.endTime).getTime() : 0
+			endTime: req.body.endTime ? new Date(req.body.endTime).getTime() : 0,
 		};
 
 		// Validate input
@@ -98,7 +98,7 @@ pollsController.createPost = async function (req, res) {
 			return res.render('polls/create', {
 				title: 'Create Poll',
 				error: 'Poll title is required',
-				data: req.body
+				data: req.body,
 			});
 		}
 
@@ -106,7 +106,7 @@ pollsController.createPost = async function (req, res) {
 			return res.render('polls/create', {
 				title: 'Create Poll',
 				error: 'At least 2 options are required',
-				data: req.body
+				data: req.body,
 			});
 		}
 
@@ -117,11 +117,10 @@ pollsController.createPost = async function (req, res) {
 			return res.render('polls/create', {
 				title: 'Create Poll',
 				error: 'At least 2 options are required',
-				data: req.body
+				data: req.body,
 			});
 		}
 
-		const pollId = await polls.create(data);
 
 		res.redirect(`/polls`);
 	} catch (err) {
@@ -129,7 +128,7 @@ pollsController.createPost = async function (req, res) {
 		res.render('polls/create', {
 			title: 'Create Poll',
 			error: err.message || 'Error creating poll',
-			data: req.body
+			data: req.body,
 		});
 	}
 };
