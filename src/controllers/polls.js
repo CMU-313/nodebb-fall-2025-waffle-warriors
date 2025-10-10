@@ -42,13 +42,21 @@ pollsController.get = async function (req, res, next) {
 
 		// Calculate percentages
 		pollData.options.forEach((option) => {
-			option.percentage = pollData.totalVotes > 0 ? 
+			option.percentage = pollData.totalVotes > 0 ?
 				Math.round((option.votes / pollData.totalVotes) * 100) : 0;
 		});
 
 		pollData.hasVoted = hasVoted;
 		pollData.canVote = req.uid && !hasVoted && pollData.status === 'active';
 		pollData.timeRemaining = pollData.endTime ? Math.max(0, pollData.endTime - Date.now()) : 0;
+
+		// Add endTimeISO for datetime-local input
+		if (pollData.endTime) {
+			pollData.endTimeISO = new Date(pollData.endTime).toISOString().slice(0, 16);
+		}
+
+		// Add canEdit property for template
+		pollData.canEdit = req.uid && (pollData.uid == req.uid || req.loggedInUserIsAdmin);
 
 		res.render('polls/poll', {
 			poll: pollData,
