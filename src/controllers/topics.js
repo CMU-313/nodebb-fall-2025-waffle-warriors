@@ -35,6 +35,12 @@ topicsController.get = async function getTopic(req, res, next) {
 	if (!topicData) {
 		return next();
 	}
+
+	// Check private post access control
+	if (topicData.isPrivate && !(await privileges.topics.canViewPrivate(topicData, req.uid))) {
+		return helpers.notAllowed(req, res);
+	}
+
 	const [
 		userPrivileges,
 		settings,
@@ -111,6 +117,10 @@ topicsController.get = async function getTopic(req, res, next) {
 	topicData.privateUploads = meta.config.privateUploads === 1;
 	topicData.showPostPreviewsOnHover = meta.config.showPostPreviewsOnHover === 1;
 	topicData.sortOptionLabel = `[[topic:${validator.escape(String(sort)).replace(/_/g, '-')}]]`;
+	
+	// Add private post flag for client-side rendering
+	topicData.isPrivate = topicData.isPrivate === 1 ? true : false;
+	
 	if (!meta.config['feeds:disableRSS']) {
 		topicData.rssFeedUrl = `${relative_path}/topic/${topicData.tid}.rss`;
 		if (req.loggedIn) {
