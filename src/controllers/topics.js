@@ -14,7 +14,6 @@ const helpers = require('./helpers');
 const pagination = require('../pagination');
 const utils = require('../utils');
 const analytics = require('../analytics');
-const polls = require('../polls');
 
 const topicsController = module.exports;
 
@@ -124,9 +123,8 @@ topicsController.get = async function getTopic(req, res, next) {
 		p => parseInt(p.index, 10) === parseInt(Math.max(0, postIndex - 1), 10)
 	);
 
-	const [author, topicPoll] = await Promise.all([
+	const [author] = await Promise.all([
 		user.getUserFields(topicData.uid, ['username', 'userslug']),
-		polls.getPollByTopicId(tid), // Try to load poll for this topic
 		buildBreadcrumbs(topicData),
 		addOldCategory(topicData, userPrivileges),
 		addTags(topicData, req, res, currentPage, postAtIndex),
@@ -134,108 +132,6 @@ topicsController.get = async function getTopic(req, res, next) {
 		markAsRead(req, tid),
 		analytics.increment([`pageviews:byCid:${topicData.category.cid}`]),
 	]);
-
-	// Include poll HTML if a poll exists for this topic
-	if (topicPoll) {
-		try {
-			// Calculate percentages and Voting status
-			topicPoll.options.forEach((option) => {
-				option.percentage = topicPoll.totalVotes > 0 ?
-					Math.round((option.votes / topicPoll.totalVotes) * 100) : 0;
-			});
-
-			topicPoll.hasVoted = req.uid ? await polls.hasVoted(topicPoll.pollId, req.uid) : false;
-			topicPoll.canVote = req.uid && !topicPoll.hasVoted && topicPoll.status === 'active';
-			topicPoll.canEdit = req.uid && (topicPoll.uid == req.uid || req.loggedInUserIsAdmin);
-			topicPoll.endTimeISO = topicPoll.endTime ? new Date(topicPoll.endTime).toISOString().slice(0, 16) : null;
-
-			// Generate poll HTML for embedding in topic
-			let pollHtml = `
-			<div class="poll-container card mb-3" data-poll-id="${topicPoll.pollId}">
-				<div class="card-body">
-					<h6 class="card-title mb-3">${topicPoll.title}</h6>`;
-
-			if (topicPoll.description) {
-				pollHtml += `<p class="text-muted mb-3">${topicPoll.description}</p>`;
-			}
-
-			if (topicPoll.canVote) {
-				// Voting form
-				pollHtml += `
-				<form id="poll-vote-form-${topicPoll.pollId}" class="poll-form">
-					<div class="poll-options mb-3">`;
-				topicPoll.options.forEach((option, index) => {
-					pollHtml += `
-					<div class="form-check mb-2">
-						<input class="form-check-input poll-option" type="${topicPoll.multipleChoice ? 'checkbox' : 'radio'}"
-							   name="poll-option" id="option-${topicPoll.pollId}-${index}" value="${option.optionId}">
-						<label class="form-check-label d-flex justify-content-between" for="option-${topicPoll.pollId}-${index}">
-							<span>${option.text}</span>
-							<span class="text-muted small">${option.votes} votes</span>
-						</label>
-					</div>`;
-				});
-				pollHtml += `
-					</div>
-					<button type="submit" class="btn btn-primary btn-sm">
-						<i class="fa fa-check"></i> Submit Vote
-					</button>
-				</form>`;
-			} else {
-				// Results view
-				topicPoll.options.forEach((option, index) => {
-					pollHtml += `
-					<div class="poll-option-result mb-3">
-						<div class="d-flex justify-content-between align-items-center mb-1">
-							<span class="fw-medium">${option.text}</span>
-							<span class="text-muted small">${option.votes} votes (${option.percentage}%)</span>
-						</div>
-						<div class="progress" style="height: 20px;">
-							<div class="progress-bar" role="progressbar" style="width: ${option.percentage}%"
-								 aria-valuenow="${option.percentage}" aria-valuemin="0" aria-valuemax="100">
-								${option.percentage}%
-							</div>
-						</div>
-					</div>`;
-				});
-			}
-
-			pollHtml += `
-				<div class="poll-meta mt-3 pt-3 border-top">
-					<div class="row text-muted small">
-						<div class="col-md-6">
-							<div class="mb-1">
-								<i class="fa fa-chart-bar"></i> Total votes: <strong>${topicPoll.totalVotes}</strong>
-							</div>
-							<div class="mb-1">
-								<i class="fa fa-user"></i> Created by: <strong>${topicPoll.user ? topicPoll.user.username : 'Anonymous'}</strong>
-							</div>
-						</div>
-						<div class="col-md-6">
-							${topicPoll.endTime ? `<div class="mb-1">
-								<i class="fa fa-clock"></i> Ends: <span class="timeago" title="${topicPoll.endTimeISO}">${new Date(topicPoll.endTime).toLocaleString()}</span>
-							</div>` : ''}
-							<div class="mb-1">
-								<span class="badge bg-${topicPoll.status === 'active' ? 'success' : 'secondary'}">${topicPoll.status}</span>
-								${topicPoll.anonymous ? '<span class="badge bg-secondary ms-1">Anonymous</span>' : ''}
-								${topicPoll.multipleChoice ? '<span class="badge bg-primary ms-1">Multiple Choice</span>' : '<span class="badge bg-info ms-1">Single Choice</span>'}
-							</div>
-						</div>
-					</div>
-					${topicPoll.canEdit ? `<a href="${nconf.get('relative_path')}/polls/${topicPoll.pollId}/edit" class="btn btn-sm btn-outline-secondary mt-2">
-						<i class="fa fa-edit"></i> Edit Poll
-					</a>` : ''}
-					${topicPoll.hasVoted ? '<div class="alert alert-info mt-3 mb-0">You have already voted in this poll.</div>' : ''}
-				</div>
-				</div>
-			</div>`;
-
-			topicData.pollEmbed = pollHtml;
-			topicData.poll = topicPoll; // Keep structured data for API access
-		} catch (pollErr) {
-			console.error('Error generating poll HTML for topic:', topicData.tid, pollErr);
-		}
-	}
 
 	topicData.author = author;
 	topicData.pagination = pagination.create(currentPage, pageCount, req.query);
