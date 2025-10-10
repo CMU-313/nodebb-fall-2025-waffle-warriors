@@ -35,6 +35,12 @@ topicsController.get = async function getTopic(req, res, next) {
 	if (!topicData) {
 		return next();
 	}
+
+	// Check private post access control
+	if (topicData.isPrivate && !(await privileges.topics.canViewPrivate(topicData, req.uid))) {
+		return helpers.notAllowed(req, res);
+	}
+
 	const [
 		userPrivileges,
 		settings,
