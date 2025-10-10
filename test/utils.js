@@ -277,10 +277,11 @@ describe('Utility Methods', () => {
 	});
 
 	it('should return passed in value if invalid', (done) => {
-		// eslint-disable-next-line no-loss-of-precision
-		const bigInt = -111111111111111111;
-		const result = utils.toISOString(bigInt);
-		assert.equal(bigInt, result);
+		// Test with a value that causes Date construction to fail but is caught by the function
+		const invalidValue = 'not-a-number';
+		const result = utils.toISOString(invalidValue);
+		// The function returns the original value when Date construction fails
+		assert.equal(invalidValue, result);
 		done();
 	});
 
