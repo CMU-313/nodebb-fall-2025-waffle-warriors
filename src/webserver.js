@@ -117,6 +117,11 @@ async function initializeNodeBB() {
 	await analytics.init();
 	await errors.init();
 	await topicEvents.init();
+	
+	// Initialize private posts hooks
+	const privatePostsHooks = require('./private-posts-hooks');
+	privatePostsHooks.init();
+	
 	if (nconf.get('runJobs')) {
 		await require('./widgets').moveMissingAreasToDrafts();
 	}

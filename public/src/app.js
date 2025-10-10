@@ -116,6 +116,16 @@ if (document.readyState === 'loading') {
 			pagination.init();
 			search.init();
 			overrides.overrideTimeago();
+			
+			// Initialize private posts functionality
+			try {
+				require(['client/private-posts'], function () {
+					console.log('✅ Private posts module loaded');
+				});
+			} catch (e) {
+				console.warn('Failed to load private posts module:', e);
+			}
+			
 			hooks.fire('action:app.load');
 			messages.show();
 			appLoaded = true;

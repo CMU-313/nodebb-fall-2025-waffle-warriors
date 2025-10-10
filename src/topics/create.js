@@ -36,9 +36,15 @@ module.exports = function (Topics) {
 			lastposttime: 0,
 			postcount: 0,
 			viewcount: 0,
+			isPrivate: data.isPrivate ? 1 : 0,
 			is_anonymous: false,
 		};
-
+		
+		
+		//console.log('--- SERVER LOG: Topic creation data received: ---', topicData); 
+		
+		
+		
 		if (Array.isArray(data.tags) && data.tags.length) {
 			topicData.tags = data.tags.join(',');
 			topicData.is_anonymous = false;
@@ -51,17 +57,25 @@ module.exports = function (Topics) {
 		topicData = result.topic;
 		await db.setObject(`topic:${topicData.tid}`, topicData);
 
+		// Private topics should not appear in public category listings
+		const isPrivate = topicData.isPrivate === 1 || topicData.isPrivate === '1';
 		const timestampedSortedSetKeys = [
 			'topics:tid',
-			`cid:${topicData.cid}:tids`,
-			`cid:${topicData.cid}:tids:create`,
+			// Only add to public category sets if not private
+			...(isPrivate ? [] : [
+				`cid:${topicData.cid}:tids`,
+				`cid:${topicData.cid}:tids:create`,
+			]),
 			`cid:${topicData.cid}:uid:${topicData.uid}:tids`,
 		];
 		const countedSortedSetKeys = [
 			...['views', 'posts', 'votes'].map(prop => `${utils.isNumber(tid) ? 'topics' : 'topicsRemote'}:${prop}`),
-			`cid:${topicData.cid}:tids:votes`,
-			`cid:${topicData.cid}:tids:posts`,
-			`cid:${topicData.cid}:tids:views`,
+			// Only add to public category stats if not private
+			...(isPrivate ? [] : [
+				`cid:${topicData.cid}:tids:votes`,
+				`cid:${topicData.cid}:tids:posts`,
+				`cid:${topicData.cid}:tids:views`,
+			]),
 		];
 
 		const scheduled = timestamp > Date.now();
