@@ -1,14 +1,18 @@
+<!-- Placeholder content -->
+
 <button class="btn btn-ghost btn-sm ff-secondary d-flex gap-2 align-items-center dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
 	<i class="fa fa-fw fa-gear text-primary"></i>
 	<span class="visible-md-inline visible-lg-inline fw-semibold">[[topic:thread-tools.title]]</span>
 	<span component="topic/selected/badge" class="badge rounded-pill bg-secondary"></span>
 </button>
+
 <ul class="dropdown-menu p-1 text-sm" role="menu">
 	<li>
 		<a component="topic/mark-unread-for-all" href="#" class="dropdown-item rounded-1 d-flex align-items-center gap-2" role="menuitem">
 			<i class="fa fa-fw fa-inbox text-secondary"></i> [[topic:thread-tools.markAsUnreadForAll]]
 		</a>
 	</li>
+
 	<li>
 		<a component="topic/pin" href="#" class="dropdown-item rounded-1 d-flex align-items-center gap-2" role="menuitem">
 			<i class="fa fa-fw fa-thumb-tack text-secondary"></i> [[topic:thread-tools.pin]]
@@ -38,13 +42,13 @@
 			<i class="fa fa-fw fa-arrows text-secondary"></i> [[topic:thread-tools.move]]
 		</a>
 	</li>
-	{{{if template.category}}}
+
 	<li>
 		<a component="topic/move-all" href="#" class="dropdown-item rounded-1 d-flex align-items-center gap-2" role="menuitem">
 			<i class="fa fa-fw fa-arrows text-secondary"></i> [[topic:thread-tools.move-all]]
 		</a>
 	</li>
-	{{{end}}}
+
 	<li>
 		<a component="topic/merge" href="#" class="dropdown-item rounded-1 d-flex align-items-center gap-2" role="menuitem">
 			<i class="fa fa-fw fa-code-fork text-secondary"></i> [[topic:thread-tools.merge]]
@@ -56,6 +60,29 @@
 			<i class="fa fa-fw fa-tag text-secondary"></i> [[topic:thread-tools.tag]]
 		</a>
 	</li>
+
+	<li class="{{{ if answered }}}hidden{{{ end }}}">
+	<a component="topic/mark-answered"
+		href="#"
+		class="dropdown-item rounded-1 d-flex align-items-center gap-2"
+		role="menuitem"
+		data-tid="{tid}">
+		<i class="fa fa-fw fa-check-circle text-success"></i>
+		Mark as Answered
+	</a>
+	</li>
+
+	<li class="{{{ if !answered }}}hidden{{{ end }}}">
+	<a component="topic/unmark-answered"
+		href="#"
+		class="dropdown-item rounded-1 d-flex align-items-center gap-2"
+		role="menuitem"
+		data-tid="{tid}">
+		<i class="fa fa-fw fa-times-circle text-danger"></i>
+		Mark Unanswered
+	</a>
+	</li>
+
 
 	<li class="dropdown-divider"></li>
 
@@ -75,11 +102,10 @@
 		</a>
 	</li>
 
-	{{{each thread_tools}}}
 	<li>
 		<a href="#" class="dropdown-item rounded-1 d-flex align-items-center gap-2 {thread_tools.class}" role="menuitem">
 			<i class="fa fa-fw {thread_tools.icon} text-secondary"></i>
-			{thread_tools.title}</a>
+			{thread_tools.title}
+		</a>
 	</li>
-	{{{end}}}
 </ul>
