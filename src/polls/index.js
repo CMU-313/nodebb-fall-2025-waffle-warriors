@@ -19,6 +19,7 @@ Polls.create = async function (data) {
 		multipleChoice: data.multipleChoice || false,
 		anonymous: data.anonymous || false,
 		status: 'active',
+		topicId: data.topicId || 0, // Optional topic ID for topic-integrated polls
 	};
 	
 	await db.setObject(`poll:${pollId}`, pollData);
@@ -106,6 +107,19 @@ Polls.vote = async function (pollId, uid, optionIds) {
 
 Polls.hasVoted = async function (pollId, uid) {
 	return await db.isSortedSetMember(`poll:${pollId}:voters`, uid);
+};
+
+Polls.getPollByTopicId = async function (topicId) {
+	// Find poll with matching topicId
+	const pollIds = await db.getSortedSetRevRange('polls:created', 0, -1);
+	for (const pollId of pollIds) {
+		const pollData = await db.getObject(`poll:${pollId}`);
+		if (pollData && parseInt(pollData.topicId) === parseInt(topicId)) {
+			const fullPollData = await Polls.get(pollId);
+			return fullPollData;
+		}
+	}
+	return null;
 };
 
 Polls.getPolls = async function (start, stop) {
