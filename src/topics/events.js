@@ -73,6 +73,15 @@ Events._types = {
 		icon: 'fa-code-fork',
 		translation: async (event, language) => translateEventArgs(event, language, 'topic:user-forked-topic', renderUser(event), `${relative_path}${event.href}`, renderTimeago(event)),
 	},
+	answered: {
+		icon: 'fa-check-circle',
+		translation: async (event, language) => translateSimple(event, language, 'topic:user-marked-answered'),
+	},
+	
+	unanswered: {
+		icon: 'fa-circle',
+		translation: async (event, language) => translateSimple(event, language, 'topic:user-marked-unanswered'),
+	},
 };
 
 Events.init = async () => {
