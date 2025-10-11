@@ -131,6 +131,15 @@ It should be noted that while the test suite fully covers backend functionality,
 
 By covering both the primary functionality and edge cases, this test suite provides strong assurance that the Anonymous Topic feature behaves as expected. It validates adherence to the acceptance criteria, confirms the integrity of anonymous post handling, and ensures that permissions, display behavior, and state transitions are robustly enforced across the system
 
+### Running the Tests
+
+To execute the automated tests for the anonymous posts feature, use the following command:
+
+```bash
+# Run the dedicated test file
+npm run test -- test/anonymous-topics.js
+```
+
 # Polling System User Guide
 
 This guide provides comprehensive instructions for using and testing the native polling system implemented in NodeBB.
