@@ -337,7 +337,9 @@ Validation tests:
 If a user without proper permissions tries to mark or unmark a topic, the system displays an error or returns a 403 Forbidden response.
 
 Attempting to mark a non-existent topic returns 404 Not Found.
-##Automated Tests
+
+
+## Automated Tests
 Tests for this feature are in test/topics.js under the "tools/delete/restore/purge" section.
 Mark Answered: Sends a PUT request to verify that the topic’s answered field is set to 1 and an answeredTimestamp is created.
 
