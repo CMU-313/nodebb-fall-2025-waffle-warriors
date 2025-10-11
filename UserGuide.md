@@ -156,18 +156,6 @@ Key capabilities:
 - Permission-based management (creators can edit/delete their polls)
 - Comprehensive API for integration
 
-## User Features
-
-### Accessing the Polling System
-Users can access polling features through:
-- **Navigation Icon**: Click the polls icon in the left sidebar
-- **Direct URL**: Navigate to `/polls`
-
-### Poll States
-- **Active**: Users can vote on polls
-- **Ended**: Polls with time limits become read-only
-- **Deleted**: Polls removed by creators cannot be accessed
-
 ## Creating Polls
 
 ### Step-by-Step Guide
@@ -185,15 +173,6 @@ Users can access polling features through:
 3. **Submit the Poll**
    - Click "Create Poll"
    - System validates input and redirects to the poll page
-
-### Validation Rules
-- Title is mandatory and cannot be empty
-- Must have 2-10 options
-- Options cannot be empty or duplicate
-- Anonymous setting is optional
-
-### Error Handling
-If validation fails, you'll see specific error messages and can correct the issues before resubmitting.
 
 ## Viewing and Voting on Polls
 
@@ -214,11 +193,6 @@ If validation fails, you'll see specific error messages and can correct the issu
 - Cannot change votes after submitting
 - Invalid options are rejected
 
-### Real-time Updates
-- Vote totals update immediately after voting
-- Percentage bars adjust automatically
-- Other users see results change in real-time
-
 ## Managing Polls
 
 ### Editing Polls
@@ -231,32 +205,6 @@ If validation fails, you'll see specific error messages and can correct the issu
 1. Go to your poll's edit page
 2. Click "Delete Poll"
 3. Confirm deletion (permanent action)
-
-### Permission Requirements
-- Only poll creators and administrators can edit/delete
-- Users must be logged in for management actions
-- CSRF protection prevents unauthorized modifications
-
-## Administrative Features
-
-### System Integration
-- Polls integrate with NodeBB's user authentication
-- All actions log CSRF tokens for security
-- Database operations use Redis for performance
-
-### Data Storage
-Polls store:
-- Poll metadata (title, creator, timestamps)
-- Voting options with counts
-- Voter tracking (including anonymous votes)
-- Real-time statistics
-
-### Security Measures
-- Input sanitization on all user data
-- SQL injection prevention through prepared queries
-- XSS protection through template escaping
-- Rate limiting on poll creation
-
 ## Testing the System
 
 ### Manual Testing Scenarios
@@ -274,12 +222,6 @@ Polls store:
 3. Try to vote without logging in (should fail)
 4. Try to vote twice on same poll (should fail)
 
-#### Edge Cases
-1. Vote with special characters in options
-2. Very long poll titles and descriptions
-3. Many options (up to 10)
-4. Empty descriptions
-
 ## Automated Testing
 
 ### Test Location
@@ -288,72 +230,13 @@ All automated tests are located in `test/polls.js` in the project root.
 ### Test Categories
 
 #### API Tests (11 tests)
-- **Poll Creation**: Validates poll creation with proper validation and error handling
-- **Poll Retrieval**: Tests individual poll fetching with correct data formatting
-- **Voting Functionality**: Ensures votes are recorded and duplicate voting is prevented
-- **Authentication**: Verifies login requirements for sensitive operations
-- **Error Handling**: Tests API responses for invalid operations
-- **Authorization**: Confirms permission checks for edit/delete operations
 
 #### Frontend Integration Tests (2 tests)
-- **Page Access Control**: Tests that creation and list pages respect authentication
-- **Navigation**: Verifies UI integration and accessibility
 
 #### Database Operation Tests (9 tests)
-- **CRUD Operations**: Comprehensive database interaction testing
-- **Data Integrity**: Ensures vote counting and storage consistency
-- **Error Conditions**: Tests database-level validation and constraint handling
-- **User Permissions**: Validates ownership and administrative controls
-
-#### Test Sufficiency
-
-The test suite achieves **comprehensive coverage** through:
-
-1. **Input Validation**: Tests reject invalid inputs (empty titles, insufficient options, malformed data)
-2. **Authentication/Enforcement**: All tests validate login requirements and permission checks
-3. **Data Integrity**: Database operations tested for consistency and rollback behavior
-4. **Error Scenarios**: Extensive coverage of failure modes and recovery
-5. **Integration Testing**: End-to-end workflows verify component interactions
-6. **Security**: CSRF protection, XSS prevention, and SQL injection resistance verified
 
 ### Running Tests
 
 ```bash
 npm run test -- test/polls.js
 ```
-
-# Mark Answered/Unanswered Feature
-## What is it?
-This feature allows moderators and administrators to mark a topic as “answered” when the original question or discussion has been resolved. Once marked, a green checkmark and Answered label appear beside the topic title both in the category list and within the topic itself. Marking a topic as answered helps other users quickly identify completed discussions. The feature also allows users with sufficient permissions to unmark the topic, returning it to an unanswered state.
-When a topic is marked or unmarked, the system updates the topic’s metadata (answered: 1 or answered:0) in the database and records a timestamp (answeredTimestamp). This enables filtering, analytics, and UI differentiation between answered and unanswered topics.
-## How to Use and Test
-Click the checkbox to select a topic in the category list.
-
-Click on topics and click the green check icon (✓) labeled Mark Answered.
-
-The icon changes to a red cross (✗) labeled Mark Unanswered, which can be used to toggle the status back.
-
-Alternatively, you can do it by going to individual topics. 
-Log in as an administrator.
-
-Open a topic and click on the Topic Tools dropdown in the top-right corner.
-
-Select Mark Answered.
-
-To revert, open the Topic Tools menu again and select Mark Unanswered.
-
-Validation tests:
-If a user without proper permissions tries to mark or unmark a topic, the system displays an error or returns a 403 Forbidden response.
-
-Attempting to mark a non-existent topic returns 404 Not Found.
-
-
-## Automated Tests
-Tests for this feature are in test/topics.js under the "tools/delete/restore/purge" section.
-Mark Answered: Sends a PUT request to verify that the topic’s answered field is set to 1 and an answeredTimestamp is created.
-
-Mark Unanswered: Sends a DELETE request to confirm that the answered field resets to 0.
-
-Schema Validation: Confirms both routes are defined in the OpenAPI spec and return valid 200 OK responses.
-
-These tests ensure the backend correctly toggles the topic’s answered state, enforces permissions, and updates metadata reliably. Frontend changes (the visible checkmark) are automatically reflected based on the backend state, so no extra UI tests are required.
