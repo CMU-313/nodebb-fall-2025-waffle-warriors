@@ -1,9 +1,0 @@
-{
-  "presets": ["@babel/preset-flow"],
-  "plugins": ["babel-plugin-syntax-hermes-parser"],
-  "env": {
-    "production": {
-      "plugins": ["flow-remove-types"]
-    }
-  }
-}
