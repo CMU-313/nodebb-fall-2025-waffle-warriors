@@ -59,6 +59,16 @@ export default defineConfig([
 			'no-prototype-builtins': 'off',
 		}
 	},
+	{
+        files: ['test/k6/**/*.js'], // Targets only the k6 test files
+        languageOptions: {
+            sourceType: 'module', // Tells ESLint to allow 'import'/'export'
+            globals: {
+                // Add any k6-specific globals if needed
+                ...globals.browser
+            }
+        }
+    },
 	...publicConfig,
 	...serverConfig
 ]);
