@@ -205,6 +205,12 @@
         }
     ],
     "standard": {
-        "ignore": "[\"public/vendor/**\",\"build/**\",\"dist/**\",\"coverage/**\",\"node_modules/**\"]"
+        "ignore": [
+            "public/vendor/**",
+            "build/**",
+            "dist/**",
+            "coverage/**",
+            "node_modules/**"
+        ]
     }
 }
