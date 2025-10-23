@@ -1,0 +1,342 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "connect-multiparty": {
+      "name": "connect-multiparty",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        {
+          "source": 1104679,
+          "name": "connect-multiparty",
+          "dependency": "connect-multiparty",
+          "title": "Connect-Multiparty allows arbitrary file upload",
+          "url": "https://github.com/advisories/GHSA-w2xw-44r3-4v9g",
+          "severity": "high",
+          "cwe": [
+            "CWE-434"
+          ],
+          "cvss": {
+            "score": 7.8,
+            "vectorString": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H"
+          },
+          "range": "<=2.2.0"
+        }
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/connect-multiparty"
+      ],
+      "fixAvailable": false
+    },
+    "coveralls": {
+      "name": "coveralls",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "request"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/coveralls"
+      ],
+      "fixAvailable": false
+    },
+    "form-data": {
+      "name": "form-data",
+      "severity": "critical",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1106509,
+          "name": "form-data",
+          "dependency": "form-data",
+          "title": "form-data uses unsafe random function in form-data for choosing boundary",
+          "url": "https://github.com/advisories/GHSA-fjxv-7rqg-78g4",
+          "severity": "critical",
+          "cwe": [
+            "CWE-330"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<2.5.4"
+        }
+      ],
+      "effects": [
+        "request"
+      ],
+      "range": "<2.5.4",
+      "nodes": [
+        "node_modules/form-data"
+      ],
+      "fixAvailable": false
+    },
+    "nodebb-plugin-composer-default": {
+      "name": "nodebb-plugin-composer-default",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "validator"
+      ],
+      "effects": [],
+      "range": ">=6.0.28",
+      "nodes": [
+        "node_modules/nodebb-plugin-composer-default"
+      ],
+      "fixAvailable": {
+        "name": "nodebb-plugin-composer-default",
+        "version": "6.0.27",
+        "isSemVerMajor": true
+      }
+    },
+    "nodebb-plugin-mentions": {
+      "name": "nodebb-plugin-mentions",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "validator"
+      ],
+      "effects": [],
+      "range": ">=2.2.0",
+      "nodes": [
+        "node_modules/nodebb-plugin-mentions"
+      ],
+      "fixAvailable": {
+        "name": "nodebb-plugin-mentions",
+        "version": "2.1.7",
+        "isSemVerMajor": true
+      }
+    },
+    "nodebb-plugin-spam-be-gone": {
+      "name": "nodebb-plugin-spam-be-gone",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "stopforumspam"
+      ],
+      "effects": [],
+      "range": ">=0.6.0",
+      "nodes": [
+        "node_modules/nodebb-plugin-spam-be-gone"
+      ],
+      "fixAvailable": {
+        "name": "nodebb-plugin-spam-be-gone",
+        "version": "0.5.5",
+        "isSemVerMajor": true
+      }
+    },
+    "nodebb-plugin-web-push": {
+      "name": "nodebb-plugin-web-push",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "validator"
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/nodebb-plugin-web-push"
+      ],
+      "fixAvailable": false
+    },
+    "nodemailer": {
+      "name": "nodemailer",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        {
+          "source": 1108571,
+          "name": "nodemailer",
+          "dependency": "nodemailer",
+          "title": "Nodemailer: Email to an unintended domain can occur due to Interpretation Conflict",
+          "url": "https://github.com/advisories/GHSA-mm7p-fcc7-pg87",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-20",
+            "CWE-436"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<7.0.7"
+        }
+      ],
+      "effects": [
+        "smtp-server"
+      ],
+      "range": "<7.0.7",
+      "nodes": [
+        "node_modules/nodemailer",
+        "node_modules/smtp-server/node_modules/nodemailer"
+      ],
+      "fixAvailable": {
+        "name": "smtp-server",
+        "version": "3.15.0",
+        "isSemVerMajor": false
+      }
+    },
+    "request": {
+      "name": "request",
+      "severity": "critical",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1096727,
+          "name": "request",
+          "dependency": "request",
+          "title": "Server-Side Request Forgery in Request",
+          "url": "https://github.com/advisories/GHSA-p8p7-x288-28g6",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-918"
+          ],
+          "cvss": {
+            "score": 6.1,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N"
+          },
+          "range": "<=2.88.2"
+        },
+        "form-data",
+        "tough-cookie"
+      ],
+      "effects": [
+        "coveralls"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/request"
+      ],
+      "fixAvailable": false
+    },
+    "smtp-server": {
+      "name": "smtp-server",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "nodemailer"
+      ],
+      "effects": [],
+      "range": "2.0.0 - 3.14.0",
+      "nodes": [
+        "node_modules/smtp-server"
+      ],
+      "fixAvailable": {
+        "name": "smtp-server",
+        "version": "3.15.0",
+        "isSemVerMajor": false
+      }
+    },
+    "stopforumspam": {
+      "name": "stopforumspam",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "validator"
+      ],
+      "effects": [
+        "nodebb-plugin-spam-be-gone"
+      ],
+      "range": ">=0.0.3",
+      "nodes": [
+        "node_modules/stopforumspam"
+      ],
+      "fixAvailable": {
+        "name": "nodebb-plugin-spam-be-gone",
+        "version": "0.5.5",
+        "isSemVerMajor": true
+      }
+    },
+    "tough-cookie": {
+      "name": "tough-cookie",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1097682,
+          "name": "tough-cookie",
+          "dependency": "tough-cookie",
+          "title": "tough-cookie Prototype Pollution vulnerability",
+          "url": "https://github.com/advisories/GHSA-72xf-g2v4-qvf3",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-1321"
+          ],
+          "cvss": {
+            "score": 6.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N"
+          },
+          "range": "<4.1.3"
+        }
+      ],
+      "effects": [
+        "request"
+      ],
+      "range": "<4.1.3",
+      "nodes": [
+        "node_modules/request/node_modules/tough-cookie"
+      ],
+      "fixAvailable": false
+    },
+    "validator": {
+      "name": "validator",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        {
+          "source": 1108959,
+          "name": "validator",
+          "dependency": "validator",
+          "title": "validator.js has a URL validation bypass vulnerability in its isURL function",
+          "url": "https://github.com/advisories/GHSA-9965-vmph-33xx",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-79"
+          ],
+          "cvss": {
+            "score": 6.1,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N"
+          },
+          "range": "<=13.15.15"
+        }
+      ],
+      "effects": [
+        "nodebb-plugin-composer-default",
+        "nodebb-plugin-mentions",
+        "nodebb-plugin-web-push",
+        "stopforumspam"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/validator"
+      ],
+      "fixAvailable": {
+        "name": "nodebb-plugin-spam-be-gone",
+        "version": "0.5.5",
+        "isSemVerMajor": true
+      }
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 10,
+      "high": 1,
+      "critical": 2,
+      "total": 13
+    },
+    "dependencies": {
+      "prod": 822,
+      "dev": 636,
+      "optional": 78,
+      "peer": 14,
+      "peerOptional": 0,
+      "total": 1535
+    }
+  }
+}
