@@ -205,12 +205,16 @@
         }
     ],
     "standard": {
+        "env": {
+            "mocha": true
+        },
         "ignore": [
             "public/vendor/**",
             "build/**",
             "dist/**",
             "coverage/**",
-            "node_modules/**"
+            "node_modules/**",
+            "types/**"
         ]
     }
 }
