@@ -82,6 +82,9 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
+      - name: Run Flow type checking
+        run: npm run flow:check
+
       - name: Node tests
         run: npm test
 
