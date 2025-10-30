@@ -82,6 +82,9 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
+      - name: Clean up flow-typed definitions
+        run: rm -rf flow-typed
+
       - name: Run Flow type checking
         run: npm run flow:check
 
