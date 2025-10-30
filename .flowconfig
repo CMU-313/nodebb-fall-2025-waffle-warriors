@@ -1,5 +1,9 @@
 [ignore]
-<PROJECT_ROOT>/node_modules/flow-typed/.*
+.*/node_modules/flow-typed/.*
+node_modules/flow-typed/.*
+flow-typed/.*
+.*/flow-typed/.*
+<PROJECT_ROOT>/flow-typed/.*
 
 [include]
 
@@ -8,5 +12,7 @@
 [lints]
 
 [options]
+exact_by_default=true
+include_warnings=false
 
 [strict]
