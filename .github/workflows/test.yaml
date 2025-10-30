@@ -83,10 +83,27 @@ jobs:
         run: npm run lint
 
       - name: Clean up flow-typed definitions
-        run: rm -rf flow-typed
+        run: |
+          echo "Checking if flow-typed exists before cleanup"
+          ls -la | grep flow-typed || echo "No flow-typed directory found"
+          rm -rf flow-typed || echo "No flow-typed to remove"
+          echo "Checking if flow-typed exists after cleanup"
+          ls -la | grep flow-typed || echo "No flow-typed directory found after cleanup"
 
       - name: Run Flow type checking
-        run: npm run flow:check
+        run: |
+          echo "Running flow check..."
+          echo "Current directory contents:"
+          ls -la
+          echo "Checking for flow-typed:"
+          find . -name "flow-typed" -type d || echo "No flow-typed directories found"
+          echo "FLOW_VERSION and environment:"
+          which flow
+          flow --version
+          echo "Flow configuration:"
+          cat .flowconfig
+          npm run flow:check 2>&1 | head -20
+          echo "Flow check completed"
 
       - name: Node tests
         run: npm test
