@@ -208,6 +208,11 @@ Topics.markUnread = async (req, res) => {
 	helpers.formatApiResponse(200, res);
 };
 
+Topics.markAnswered = async (req, res) => {
+	await api.topics.markAnswered(req, { tid: req.params.tid });
+	helpers.formatApiResponse(200, res);
+};
+
 Topics.bump = async (req, res) => {
 	await api.topics.bump(req, { ...req.params });
 
