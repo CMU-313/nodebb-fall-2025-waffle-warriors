@@ -20,6 +20,7 @@ module.exports = function (Posts) {
 		const timestamp = data.timestamp || Date.now();
 		const isMain = data.isMain || false;
 		const [isEnglish, translatedContent] = await translate.translate(data);
+		console.log('Translation result in create.js:', { isEnglish, translatedContent, type: typeof translatedContent });
 
 		if (!uid && parseInt(uid, 10) !== 0) {
 			throw new Error('[[error:invalid-uid]]');
