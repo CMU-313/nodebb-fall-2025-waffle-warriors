@@ -173,6 +173,8 @@ PostDataObject:
           type: boolean
         pid:
           type: number
+        isEnglish:
+          type: boolean
         uid:
           type: number
           description: A user identifier
