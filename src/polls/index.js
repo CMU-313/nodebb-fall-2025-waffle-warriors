@@ -44,7 +44,7 @@ Polls.create = async function (data) {
 Polls.get = async function (pollId) {
 	const pollData = await db.getObject(`poll:${pollId}`);
 	if (!pollData) {
-		throw new Error('[[error:no-poll]]');
+		return null;
 	}
 	
 	const optionIds = await db.getListRange(`poll:${pollId}:options`, 0, -1);

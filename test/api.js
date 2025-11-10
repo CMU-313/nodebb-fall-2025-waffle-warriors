@@ -22,6 +22,7 @@ const topics = require('../src/topics');
 const posts = require('../src/posts');
 const plugins = require('../src/plugins');
 const flags = require('../src/flags');
+const polls = require('../src/polls');
 const messaging = require('../src/messaging');
 const activitypub = require('../src/activitypub');
 const utils = require('../src/utils');
@@ -265,6 +266,13 @@ describe('API', async () => {
 			cid: testCategory.cid,
 			title: 'Test Topic 3',
 			content: 'Test topic 3 content',
+		});
+
+		// Create a sample poll for API testing
+		await polls.create({
+			title: 'Test Poll',
+			options: ['Option 1', 'Option 2', 'Option 3'],
+			uid: adminUid,
 		});
 
 		// Create a post diff
