@@ -175,6 +175,8 @@ PostDataObject:
           type: number
         isEnglish:
           type: boolean
+        translatedContent:
+          type: string
         uid:
           type: number
           description: A user identifier
