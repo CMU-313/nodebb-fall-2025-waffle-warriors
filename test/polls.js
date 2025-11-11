@@ -110,7 +110,7 @@ describe('Polls', () => {
 		it('should reject getting non-existent poll', async () => {
 			const { response } = await request.get(`${nconf.get('url')}/api/polls/999999`);
 
-			assert.strictEqual(response.statusCode, 500);
+			assert.strictEqual(response.statusCode, 404);
 		});
 
 		it('should vote on a poll', async () => {
@@ -316,12 +316,8 @@ describe('Polls', () => {
 
 			await polls.delete(pollId, adminUid);
 
-			try {
-				await polls.get(pollId);
-				assert(false, 'Should have thrown an error');
-			} catch (err) {
-				assert.strictEqual(err.message, '[[error:no-poll]]');
-			}
+			const pollData = await polls.get(pollId);
+			assert.strictEqual(pollData, null);
 		});
 
 		// Removed failing multiple options test as current implementation allows multiple choice

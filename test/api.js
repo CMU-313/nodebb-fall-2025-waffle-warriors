@@ -22,6 +22,7 @@ const topics = require('../src/topics');
 const posts = require('../src/posts');
 const plugins = require('../src/plugins');
 const flags = require('../src/flags');
+const polls = require('../src/polls');
 const messaging = require('../src/messaging');
 const activitypub = require('../src/activitypub');
 const utils = require('../src/utils');
@@ -267,6 +268,13 @@ describe('API', async () => {
 			content: 'Test topic 3 content',
 		});
 
+		// Create a sample poll for API testing
+		await polls.create({
+			title: 'Test Poll',
+			options: ['Option 1', 'Option 2', 'Option 3'],
+			uid: adminUid,
+		});
+
 		// Create a post diff
 		await posts.edit({
 			uid: adminUid,
@@ -327,15 +335,6 @@ describe('API', async () => {
 				owner: `https://example.org/foobar`,
 				publicKeyPem: 'secretcat',
 			},
-		});
-
-		// Create a test poll for API testing
-		const polls = require('../src/polls');
-		await polls.create({
-			title: 'Test Poll',
-			description: 'A test poll for API testing',
-			options: ['Option 1', 'Option 2'],
-			uid: adminUid,
 		});
 
 		setup = true;
@@ -644,8 +643,7 @@ describe('API', async () => {
 		// Compare the schema to the response
 		required.forEach((prop) => {
 			if (schema.hasOwnProperty(prop)) {
-				assert(response.hasOwnProperty(prop), `"${prop}" is a required property (path: ${method} ${path}, context: ${context})`);
-
+				assert(response.hasOwnProperty(prop), `"${prop}" is a required property (path: ${method} ${path}, context: ${context}), ${JSON.stringify(response)}`);
 				// Don't proceed with type-check if the value could possibly be unset (nullable: true, in spec)
 				if (response[prop] === null && schema[prop].nullable === true) {
 					return;
@@ -694,7 +692,6 @@ describe('API', async () => {
 				return;
 			}
 
-			assert(schema[prop], `"${prop}" was found in response, but is not defined in schema (path: ${method} ${path}, context: ${context})`);
-		});
+			assert(schema[prop], `"${prop}" was found in response, but is not defined in schema (path: ${method} ${path}, context: ${context}), SCHEMA ${JSON.stringify(schema)}`);});
 	}
 });
