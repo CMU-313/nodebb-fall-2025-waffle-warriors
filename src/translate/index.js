@@ -7,12 +7,12 @@ translatorApi.translate = async function (postData) {
 	// Try multiple approaches to reach the microservice
 	// Use host.docker.internal for Docker networking to reach host machine
 	const urls = [
+		'http://127.0.0.1:5000/?content=' + encodeURIComponent(postData.content),
+		'http://localhost:5000/?content=' + encodeURIComponent(postData.content),
 		'http://host.docker.internal:5000/?content=' + encodeURIComponent(postData.content),
 		'http://host.docker.internal:5001/?content=' + encodeURIComponent(postData.content),
 		'http://127.0.0.1:5001/?content=' + encodeURIComponent(postData.content),
 		'http://localhost:5001/?content=' + encodeURIComponent(postData.content),
-		'http://127.0.0.1:5000/?content=' + encodeURIComponent(postData.content),
-		'http://localhost:5000/?content=' + encodeURIComponent(postData.content),
 	];
 
 	for (const url of urls) {
