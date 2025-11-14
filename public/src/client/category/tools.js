@@ -74,6 +74,23 @@ define('forum/category/tools', [
 			});
 			return false;
 		});
+		components.get('topic/mark-as-answered').on('click', function () {
+			const tids = topicSelect.getSelectedTids();
+			if (!tids.length) {
+				return alerts.error('[[error:no-topics-selected]]');
+			}
+			socket.emit('topics.markAsAnswered', tids, function (err) {
+				if (err) {
+					return alerts.error(err);
+				}
+				alerts.success('[[topic:markAsAnswered.success]]');
+				tids.forEach(function (tid) {
+					$('[component="category/topic"][data-tid="' + tid + '"]').addClass('answered');
+				});
+				onCommandComplete();
+			});
+			return false;
+		});
 
 		components.get('topic/move').on('click', function () {
 			require(['forum/topic/move'], function (move) {

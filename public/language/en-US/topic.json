@@ -85,6 +85,8 @@
     "markAsUnreadForAll.success": "Topic marked as unread for all.",
     "mark-unread": "Mark unread",
     "mark-unread.success": "Topic marked as unread.",
+    "markAnswered.success": "Topic marked as answered.",
+    "mark-answered": "Mark answered",
     "watch": "Watch",
     "unwatch": "Unwatch",
     "watch.title": "Be notified of new replies in this topic",
